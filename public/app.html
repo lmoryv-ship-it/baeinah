@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بَيِّنة — استشارة جديدة</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="dash-body">
+
+<header class="dash-header">
+    <div class="container dash-nav">
+        <a href="/" class="logo"><span class="logo-icon">⚖</span><span class="logo-text">بَيِّنة</span></a>
+        <div class="dash-nav-links">
+            <a href="/dashboard.html">لوحة التحكم</a>
+            <a href="/app.html" class="active">استشارة جديدة</a>
+        </div>
+        <div class="dash-user" id="dashUser"></div>
+    </div>
+</header>
+
+<main class="container app-main">
+
+    <div class="app-grid">
+
+        <!-- نموذج التحليل -->
+        <div class="analysis-panel">
+            <h2 class="panel-title">تحليل قانوني جديد</h2>
+
+            <div class="form-group">
+                <label for="consultationType">نوع التحليل</label>
+                <select id="consultationType">
+                    <option value="contract_analysis">📋 تحليل عقد</option>
+                    <option value="labor_law">👷 نظام العمل</option>
+                    <option value="medical_law">🏥 الأنظمة الطبية</option>
+                    <option value="company_law">🏢 نظام الشركات</option>
+                    <option value="general">⚖ استفسار قانوني عام</option>
+                </select>
+            </div>
+
+            <div class="input-toggle">
+                <button class="toggle-btn active" id="tabText" onclick="switchInput('text')">لصق النص</button>
+                <button class="toggle-btn" id="tabFile" onclick="switchInput('file')">رفع ملف</button>
+            </div>
+
+            <div id="textInput" class="form-group">
+                <textarea id="contractText" rows="14"
+                    placeholder="الصق هنا نص العقد أو الوثيقة القانونية للتحليل…"></textarea>
+            </div>
+
+            <div id="fileInput" class="hidden">
+                <div id="dropZone" class="drop-zone"
+                     ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
+                     onclick="document.getElementById('filePickerInput').click()">
+                    <div class="drop-icon">📄</div>
+                    <p class="drop-title">اسحب الملف هنا أو انقر للاختيار</p>
+                    <p class="drop-hint">PDF, DOCX, TXT — حتى 10 ميغابايت</p>
+                    <input type="file" id="filePickerInput" class="hidden"
+                           accept=".pdf,.docx,.txt"
+                           onchange="onFileSelected(this.files[0])">
+                </div>
+                <div id="filePreview" class="file-preview hidden">
+                    <span id="fileIcon" class="file-type-icon">📄</span>
+                    <div class="file-info">
+                        <span id="fileName" class="file-name"></span>
+                        <span id="fileSize" class="file-size"></span>
+                    </div>
+                    <button class="remove-file-btn" onclick="clearFile()">✕</button>
+                </div>
+            </div>
+
+            <div class="quota-info" id="quotaInfo"></div>
+
+            <button id="analyzeBtn" class="btn btn-accent btn-analyze" onclick="analyzeContract()">
+                <span id="btnText">تحليل الوثيقة</span>
+                <span class="loader hidden" id="btnLoader"></span>
+            </button>
+
+            <div id="errorSection" class="form-error hidden" id="errorSection"></div>
+        </div>
+
+        <!-- نتائج التحليل -->
+        <div class="result-panel" id="resultPanel">
+            <div class="result-empty" id="resultEmpty">
+                <div style="font-size:3rem;margin-bottom:16px">⚖</div>
+                <p>أدخل الوثيقة واضغط "تحليل" لعرض النتائج هنا</p>
+            </div>
+
+            <div id="resultContent" class="hidden">
+                <div class="result-top">
+                    <h3>نتائج التحليل</h3>
+                    <span id="riskBadge" class="risk-badge"></span>
+                </div>
+
+                <div class="result-card">
+                    <h4>الملخص التنفيذي</h4>
+                    <p id="summaryText"></p>
+                </div>
+
+                <div class="result-card">
+                    <h4>المخاطر المحددة</h4>
+                    <ul id="risksList" class="result-list"></ul>
+                </div>
+
+                <div class="result-card">
+                    <h4>التوصيات</h4>
+                    <ul id="recsList" class="result-list"></ul>
+                </div>
+
+                <div class="result-card">
+                    <h4>المراجع القانونية</h4>
+                    <ul id="refsList" class="result-list"></ul>
+                </div>
+
+                <div class="raw-toggle">
+                    <button class="btn btn-ghost-dark" onclick="toggleRaw()">عرض JSON الكامل</button>
+                    <pre id="rawJson" class="raw-json hidden"></pre>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بَيِّنة — لوحة التحكم</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="dash-body">
+
+<header class="dash-header">
+    <div class="container dash-nav">
+        <a href="/" class="logo"><span class="logo-icon">⚖</span><span class="logo-text">بَيِّنة</span></a>
+        <div class="dash-nav-links">
+            <a href="/dashboard.html" class="active">لوحة التحكم</a>
+            <a href="/app.html">استشارة جديدة</a>
+        </div>
+        <div class="dash-user" id="dashUser"></div>
+    </div>
+</header>
+
+<main class="dash-main container">
+
+    <!-- الإحصائيات -->
+    <section class="dash-stats" id="dashStats">
+        <div class="stat-card">
+            <div class="stat-card-icon">📊</div>
+            <div>
+                <div class="stat-card-num" id="statUsed">—</div>
+                <div class="stat-card-label">استشارات هذا الشهر</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">🎯</div>
+            <div>
+                <div class="stat-card-num" id="statLimit">—</div>
+                <div class="stat-card-label">الحصة الشهرية</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">📅</div>
+            <div>
+                <div class="stat-card-num" id="statReset">—</div>
+                <div class="stat-card-label">تجديد الحصة</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-icon">⭐</div>
+            <div>
+                <div class="stat-card-num" id="statPlan">—</div>
+                <div class="stat-card-label">الخطة الحالية</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- شريط الاستهلاك -->
+    <div class="quota-bar-wrap">
+        <div class="quota-bar-header">
+            <span>استهلاك الحصة الشهرية</span>
+            <span id="quotaText">— / —</span>
+        </div>
+        <div class="quota-bar-bg">
+            <div class="quota-bar-fill" id="quotaFill" style="width:0%"></div>
+        </div>
+    </div>
+
+    <!-- بطاقة الاشتراك -->
+    <div class="sub-card" id="subCard">
+        <div class="sub-card-info">
+            <h3>اشتراكك الحالي</h3>
+            <p id="subDetails">جارٍ التحميل…</p>
+        </div>
+        <div class="sub-card-actions" id="subActions"></div>
+    </div>
+
+    <!-- الاستشارات الأخيرة -->
+    <section class="recent-section">
+        <div class="recent-header">
+            <h2>الاستشارات الأخيرة</h2>
+            <a href="/app.html" class="btn btn-accent">+ استشارة جديدة</a>
+        </div>
+        <div id="consultationsList" class="consultations-list">
+            <div class="loading-placeholder">جارٍ تحميل الاستشارات…</div>
+        </div>
+    </section>
+
+</main>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -13,32 +13,19 @@ const PROMPTS = {
     company_law:       SYSTEM_PROMPT_COMPANY,
 };
 
-const CREDIT_COSTS = {
-    contract_analysis: 2,
-    labor_law:         1,
-    medical_law:       2,
-    company_law:       1,
-    general:           1,
-};
-
 async function createConsultation(userId, type, inputText, fileMetadata = null) {
     const db = getDb();
 
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!user) throw new Error('المستخدم غير موجود');
 
-    const cost = CREDIT_COSTS[type] || 1;
-    if (user.plan === 'free' && user.credits < cost) {
-        throw new Error('رصيد الاستشارات غير كافٍ. يرجى الترقية إلى خطة مدفوعة.');
-    }
-
     const consultationId = uuidv4();
-    const inputFilePath  = fileMetadata ? fileMetadata.originalName : null;
+    const inputFilePath  = fileMetadata?.originalName || null;
 
     db.prepare(`
-        INSERT INTO consultations (id, user_id, type, status, input_text, input_file_path, cost_credits)
-        VALUES (?, ?, ?, 'processing', ?, ?, ?)
-    `).run(consultationId, userId, type, inputText, inputFilePath, cost);
+        INSERT INTO consultations (id, user_id, type, status, input_text, input_file_path)
+        VALUES (?, ?, ?, 'processing', ?, ?)
+    `).run(consultationId, userId, type, inputText, inputFilePath);
 
     try {
         const systemPrompt = PROMPTS[type] || PROMPTS.contract_analysis;
@@ -53,9 +40,8 @@ async function createConsultation(userId, type, inputText, fileMetadata = null) 
             WHERE id = ?
         `).run(JSON.stringify(data), data.risk_level || 'medium', tokensUsed, consultationId);
 
-        if (user.plan === 'free') {
-            db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, userId);
-        }
+        // خصم من الحصة الشهرية
+        db.prepare(`UPDATE users SET quota_used = quota_used + 1, updated_at = datetime('now') WHERE id = ?`).run(userId);
 
         if (type === 'contract_analysis' && data) {
             db.prepare(`
@@ -65,13 +51,13 @@ async function createConsultation(userId, type, inputText, fileMetadata = null) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).run(
                 uuidv4(), consultationId,
-                data.contract_type  || '',
-                JSON.stringify(data.parties        || []),
-                JSON.stringify(data.obligations    || []),
-                JSON.stringify(data.risks          || []),
-                JSON.stringify(data.violations     || []),
+                data.contract_type   || '',
+                JSON.stringify(data.parties         || []),
+                JSON.stringify(data.obligations     || []),
+                JSON.stringify(data.risks           || []),
+                JSON.stringify(data.violations      || []),
                 JSON.stringify(data.recommendations || []),
-                data.summary_ar    || '',
+                data.summary_ar      || '',
                 JSON.stringify(data.legal_references || []),
             );
         }
@@ -92,8 +78,7 @@ function buildUserMessage(type, inputText) {
         company_law:       'وثيقة الشركة أو المسألة التجارية التالية',
         general:           'الاستفسار القانوني التالي',
     };
-    const label = labels[type] || 'الوثيقة التالية';
-    return `يرجى تحليل ${label} وفق الأنظمة السعودية المعمول بها:\n\n${inputText}`;
+    return `يرجى تحليل ${labels[type] || 'الوثيقة التالية'} وفق الأنظمة السعودية المعمول بها:\n\n${inputText}`;
 }
 
 function getConsultation(consultationId, userId) {
@@ -114,7 +99,7 @@ function getConsultation(consultationId, userId) {
 function getUserConsultations(userId, limit = 20, offset = 0) {
     const db = getDb();
     return db.prepare(`
-        SELECT id, type, status, risk_level, cost_credits, created_at, completed_at
+        SELECT id, type, status, risk_level, created_at, completed_at
         FROM consultations
         WHERE user_id = ?
         ORDER BY created_at DESC

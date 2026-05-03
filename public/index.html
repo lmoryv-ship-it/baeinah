@@ -3,178 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بَيِّنة — المساعد القانوني اللحظي</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css">
+    <title>بَيِّنة — المساعد القانوني السحابي للسوق السعودي</title>
+    <meta name="description" content="حلّل عقودك وثق حقوقك بالذكاء الاصطناعي وفق الأنظمة السعودية. اشتراك شهري بدون التزام.">
+    <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <span class="logo-icon">⚖</span>
-                <h1>بَيِّنة</h1>
-                <span class="logo-tag">المساعد القانوني اللحظي</span>
-            </div>
-            <nav class="nav">
-                <a href="#analysis">تحليل عقد</a>
-                <a href="#plans">الباقات</a>
-                <a href="#about">عن بَيِّنة</a>
-            </nav>
+
+<!-- ── الشريط العلوي ── -->
+<header class="navbar" id="navbar">
+    <div class="container nav-inner">
+        <a href="/" class="logo">
+            <span class="logo-icon">⚖</span>
+            <span class="logo-text">بَيِّنة</span>
+        </a>
+        <nav class="nav-links">
+            <a href="#features">المميزات</a>
+            <a href="#pricing">الأسعار</a>
+            <a href="#how">كيف يعمل</a>
+            <a href="#faq">الأسئلة الشائعة</a>
+        </nav>
+        <div class="nav-cta">
+            <a href="/auth.html" class="btn btn-ghost">دخول</a>
+            <a href="/auth.html#register" class="btn btn-accent">ابدأ مجاناً</a>
         </div>
-    </header>
+    </div>
+</header>
 
-    <section class="hero">
-        <div class="container">
-            <h2>حلّل عقودك بذكاء قانوني سعودي متخصص</h2>
-            <p>تحليل فوري للعقود وعقود العمل والوثائق الطبية وفق الأنظمة السعودية المعمول بها</p>
-            <a href="#analysis" class="btn btn-primary">ابدأ التحليل مجاناً</a>
+<!-- ── Hero ── -->
+<section class="hero">
+    <div class="container hero-inner">
+        <div class="hero-badge">✦ مدعوم بالذكاء الاصطناعي · الأنظمة السعودية 1446هـ</div>
+        <h1 class="hero-title">
+            حلّل عقودك بدقة قانونية<br>
+            <span class="highlight">في ثوانٍ لا ساعات</span>
+        </h1>
+        <p class="hero-sub">
+            بَيِّنة يحلّل عقودك، يكشف الثغرات والمخاطر، ويستشهد بالمواد القانونية السعودية المحددة —
+            بدون محامٍ، بدون انتظار.
+        </p>
+        <div class="hero-actions">
+            <a href="/auth.html" class="btn btn-accent btn-xl">ابدأ مجاناً — 3 استشارات</a>
+            <a href="#how" class="btn btn-outline btn-xl">شاهد كيف يعمل ←</a>
         </div>
-    </section>
+        <div class="hero-stats">
+            <div class="stat"><span class="stat-num">+4</span><span class="stat-label">أنواع تحليل قانوني</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-num">&lt;30ث</span><span class="stat-label">زمن التحليل</span></div>
+            <div class="stat-divider"></div>
+            <div class="stat"><span class="stat-num">100%</span><span class="stat-label">متوافق مع الأنظمة السعودية</span></div>
+        </div>
+    </div>
+</section>
 
-    <section id="analysis" class="analysis-section">
-        <div class="container">
-            <h2 class="section-title">تحليل قانوني فوري</h2>
-
-            <div class="analysis-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="consultationType">نوع التحليل</label>
-                        <select id="consultationType">
-                            <option value="contract_analysis">تحليل عقد</option>
-                            <option value="labor_law">نظام العمل</option>
-                            <option value="medical_law">الأنظمة الطبية</option>
-                            <option value="company_law">نظام الشركات</option>
-                            <option value="general">استفسار قانوني عام</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- منطقة رفع الملف -->
-                <div class="input-toggle">
-                    <button class="toggle-btn active" id="tabText" onclick="switchInput('text')">لصق النص</button>
-                    <button class="toggle-btn" id="tabFile" onclick="switchInput('file')">رفع ملف</button>
-                </div>
-
-                <div id="textInput" class="form-group">
-                    <textarea id="contractText" rows="10"
-                        placeholder="الصق هنا نص العقد أو الوثيقة القانونية للتحليل…"></textarea>
-                </div>
-
-                <div id="fileInput" class="hidden">
-                    <div id="dropZone" class="drop-zone"
-                         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
-                         onclick="document.getElementById('filePickerInput').click()">
-                        <div class="drop-icon">📄</div>
-                        <p class="drop-title">اسحب الملف هنا أو انقر للاختيار</p>
-                        <p class="drop-hint">PDF, DOCX, TXT — حتى 10 ميغابايت</p>
-                        <input type="file" id="filePickerInput" class="hidden"
-                               accept=".pdf,.docx,.txt"
-                               onchange="onFileSelected(this.files[0])">
-                    </div>
-                    <div id="filePreview" class="file-preview hidden">
-                        <span id="fileIcon" class="file-type-icon">📄</span>
-                        <div class="file-info">
-                            <span id="fileName" class="file-name"></span>
-                            <span id="fileSize" class="file-size"></span>
-                        </div>
-                        <button class="remove-file-btn" onclick="clearFile()" title="إزالة الملف">✕</button>
-                    </div>
-                </div>
-
-                <button id="analyzeBtn" class="btn btn-primary btn-large" onclick="analyzeContract()">
-                    <span id="btnText">تحليل الوثيقة</span>
-                    <span id="btnLoader" class="loader hidden"></span>
-                </button>
+<!-- ── المميزات ── -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-header">
+            <h2>كل ما تحتاجه لحماية حقوقك القانونية</h2>
+            <p>من عقود العمل إلى الاتفاقيات الطبية — بَيِّنة يغطي كل احتياجاتك</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>تحليل العقود</h3>
+                <p>استخراج الالتزامات والمخاطر والثغرات مع الاستشهاد بنظام المعاملات المدنية 1444هـ</p>
             </div>
-
-            <div id="resultSection" class="result-section hidden">
-                <div class="result-header">
-                    <h3>نتائج التحليل القانوني</h3>
-                    <span id="riskBadge" class="risk-badge"></span>
-                </div>
-
-                <div class="result-grid">
-                    <div class="result-card" id="summaryCard">
-                        <h4>الملخص التنفيذي</h4>
-                        <p id="summaryText"></p>
-                    </div>
-
-                    <div class="result-card" id="risksCard">
-                        <h4>المخاطر المحددة</h4>
-                        <ul id="risksList"></ul>
-                    </div>
-
-                    <div class="result-card" id="recsCard">
-                        <h4>التوصيات</h4>
-                        <ul id="recsList"></ul>
-                    </div>
-
-                    <div class="result-card" id="refsCard">
-                        <h4>المراجع القانونية</h4>
-                        <ul id="refsList"></ul>
-                    </div>
-                </div>
-
-                <div class="raw-json-toggle">
-                    <button class="btn btn-secondary" onclick="toggleRaw()">عرض البيانات الكاملة (JSON)</button>
-                    <pre id="rawJson" class="raw-json hidden"></pre>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon">👷</div>
+                <h3>نظام العمل</h3>
+                <p>فحص الامتثال لنظام العمل ونطاقات والسعودة وحماية الأجور (WPS)</p>
             </div>
-
-            <div id="errorSection" class="error-section hidden">
-                <p id="errorText"></p>
+            <div class="feature-card">
+                <div class="feature-icon">🏥</div>
+                <h3>الأنظمة الطبية</h3>
+                <p>تحليل الوثائق الطبية وفق نظام مزاولة المهن الصحية وحماية البيانات PDPL ومعايير CBAHI</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏢</div>
+                <h3>نظام الشركات</h3>
+                <p>مراجعة العقود التأسيسية والحوكمة وفق نظام الشركات السعودي الجديد 1443هـ</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3>رفع PDF و DOCX</h3>
+                <p>ارفع ملفك مباشرة دون الحاجة لنسخ النص. ندعم PDF وWord وTXT حتى 10MB</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>نتائج فورية</h3>
+                <p>تقرير مفصّل بالمخاطر والتوصيات والمراجع القانونية في أقل من 30 ثانية</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section id="plans" class="plans-section">
-        <div class="container">
-            <h2 class="section-title">باقات بَيِّنة</h2>
-            <div class="plans-grid">
-                <div class="plan-card">
-                    <h3>مجاني</h3>
-                    <div class="plan-price">0 ريال</div>
-                    <ul>
-                        <li>3 استشارات عند التسجيل</li>
-                        <li>تحليل العقود الأساسية</li>
-                        <li>نتائج JSON</li>
-                    </ul>
-                    <button class="btn btn-secondary">ابدأ مجاناً</button>
-                </div>
-                <div class="plan-card plan-featured">
-                    <div class="plan-badge">الأكثر طلباً</div>
-                    <h3>احترافي</h3>
-                    <div class="plan-price">299 ريال<span>/شهر</span></div>
-                    <ul>
-                        <li>100 استشارة شهرياً</li>
-                        <li>جميع أنواع التحليل</li>
-                        <li>تقارير PDF</li>
-                        <li>دعم أولوي</li>
-                    </ul>
-                    <button class="btn btn-primary" onclick="initiatePayment('professional')">اشترك الآن</button>
-                </div>
-                <div class="plan-card">
-                    <h3>المؤسسات</h3>
-                    <div class="plan-price">999 ريال<span>/شهر</span></div>
-                    <ul>
-                        <li>500 استشارة شهرياً</li>
-                        <li>API للدمج المباشر</li>
-                        <li>لوحة تحكم المؤسسة</li>
-                        <li>مدير حساب مخصص</li>
-                        <li>امتثال CBAHI</li>
-                    </ul>
-                    <button class="btn btn-primary" onclick="initiatePayment('enterprise')">تواصل معنا</button>
-                </div>
+<!-- ── كيف يعمل ── -->
+<section class="how-it-works" id="how">
+    <div class="container">
+        <div class="section-header light">
+            <h2>ثلاث خطوات فقط</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">١</div>
+                <h3>سجّل حسابك</h3>
+                <p>إنشاء حساب مجاني في دقيقة واحدة. لا بطاقة ائتمان مطلوبة للبدء.</p>
+            </div>
+            <div class="step-arrow">←</div>
+            <div class="step">
+                <div class="step-num">٢</div>
+                <h3>ارفع أو الصق وثيقتك</h3>
+                <p>ارفع ملف PDF/DOCX أو الصق النص مباشرة، واختر نوع التحليل المناسب.</p>
+            </div>
+            <div class="step-arrow">←</div>
+            <div class="step">
+                <div class="step-num">٣</div>
+                <h3>احصل على تقريرك</h3>
+                <p>تقرير قانوني مفصّل يشمل المخاطر والتوصيات والمراجع القانونية.</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>بَيِّنة © 2024 — تحليل قانوني يستند إلى الأنظمة السعودية المعمول بها. لا تُغني عن الاستشارة القانونية المتخصصة.</p>
+<!-- ── الأسعار ── -->
+<section class="pricing" id="pricing">
+    <div class="container">
+        <div class="section-header">
+            <h2>اشتراك شهري شفاف — بدون التزامات</h2>
+            <p>ألغِ في أي وقت. تُجدَّد الحصة في أول كل شهر.</p>
         </div>
-    </footer>
+        <div class="pricing-grid" id="pricingGrid">
+            <!-- يُملَأ من JavaScript -->
+        </div>
+        <p class="pricing-note">جميع الأسعار بالريال السعودي شاملة ضريبة القيمة المضافة · الدفع عبر بوابة ميسر الآمنة</p>
+    </div>
+</section>
 
-    <script src="js/app.js"></script>
+<!-- ── الأسئلة الشائعة ── -->
+<section class="faq" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <h2>الأسئلة الشائعة</h2>
+        </div>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary>هل بَيِّنة يُغني عن المحامي؟</summary>
+                <p>لا. بَيِّنة أداة مساعدة للفهم والوعي القانوني، وليس استشارة قانونية رسمية. نوصي دائماً بمراجعة محامٍ معتمد للقضايا المعقدة.</p>
+            </details>
+            <details class="faq-item">
+                <summary>ما الأنظمة القانونية التي يستند إليها؟</summary>
+                <p>نظام المعاملات المدنية 1444هـ، نظام العمل م/51، نظام الشركات 1443هـ، نظام مزاولة المهن الصحية، نظام حماية البيانات الشخصية PDPL، ومعايير CBAHI.</p>
+            </details>
+            <details class="faq-item">
+                <summary>هل بياناتي آمنة؟</summary>
+                <p>نعم. لا نحتفظ بملفاتك بعد المعالجة. نصوص الاستشارات محمية بالتشفير ولا تُشارَك مع أطراف ثالثة.</p>
+            </details>
+            <details class="faq-item">
+                <summary>كيف تُحسب الحصة الشهرية؟</summary>
+                <p>كل استشارة (نص أو ملف) تستهلك استشارة واحدة من حصتك. تُعاد الحصة تلقائياً في أول كل شهر ميلادي.</p>
+            </details>
+            <details class="faq-item">
+                <summary>هل يمكن إلغاء الاشتراك في أي وقت؟</summary>
+                <p>نعم. يمكنك الإلغاء من لوحة التحكم في أي وقت، وسيستمر اشتراكك حتى نهاية الدورة الحالية دون أي رسوم إضافية.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+    <div class="container">
+        <h2>ابدأ بحماية حقوقك اليوم</h2>
+        <p>3 استشارات مجانية · لا بطاقة ائتمان · إلغاء في أي وقت</p>
+        <a href="/auth.html" class="btn btn-accent btn-xl">أنشئ حسابك مجاناً</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-inner">
+        <div class="footer-brand">
+            <span class="logo-icon">⚖</span>
+            <span class="logo-text">بَيِّنة</span>
+            <p>المساعد القانوني السحابي للسوق السعودي</p>
+        </div>
+        <div class="footer-links">
+            <a href="/privacy.html">سياسة الخصوصية</a>
+            <a href="/terms.html">الشروط والأحكام</a>
+            <a href="mailto:support@baeinah.sa">التواصل</a>
+        </div>
+        <p class="footer-legal">© 2025 بَيِّنة. التحليلات للأغراض التوعوية ولا تُغني عن الاستشارة القانونية المتخصصة.</p>
+    </div>
+</footer>
+
+<script src="js/landing.js"></script>
 </body>
 </html>

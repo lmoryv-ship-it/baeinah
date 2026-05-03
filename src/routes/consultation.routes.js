@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const path    = require('path');
 const { requireAuth }  = require('../middleware/auth.middleware');
+const { requireQuota } = require('../middleware/quota.middleware');
 const { upload }       = require('../middleware/upload.middleware');
 const { extractText, deleteFile, getFileMetadata } = require('../services/file.service');
 const {
@@ -15,7 +16,7 @@ router.use(requireAuth);
 const VALID_TYPES = ['contract_analysis','labor_law','medical_law','company_law','general'];
 
 // POST /api/consultations  — نص مباشر
-router.post('/', async (req, res, next) => {
+router.post('/', requireQuota, async (req, res, next) => {
     try {
         const { type, text } = req.body;
         if (!type || !text) return res.status(400).json({ error: 'الحقول المطلوبة: type, text' });
@@ -27,7 +28,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // POST /api/consultations/upload  — رفع ملف
-router.post('/upload', upload.single('file'), async (req, res, next) => {
+router.post('/upload', requireQuota, upload.single('file'), async (req, res, next) => {
     const filePath = req.file?.path;
 
     try {
