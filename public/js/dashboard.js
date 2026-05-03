@@ -78,7 +78,7 @@ async function loadSubscription() {
 
     if (!sub || sub.status === 'initiated' || !user || user.plan === 'free') {
         details.textContent = 'أنت على الخطة المجانية (3 استشارات شهرياً)';
-        actions.innerHTML   = `<a href="/pricing.html" class="btn btn-accent">ترقية الخطة</a>`;
+        actions.innerHTML   = `<a href="/#pricing" class="btn btn-accent">ترقية الخطة</a>`;
         return;
     }
 
@@ -95,11 +95,11 @@ async function loadSubscription() {
 
     if (sub.status === 'active' && !sub.cancel_at_period_end) {
         actions.innerHTML = `
-            <a href="/pricing.html" class="btn btn-outline">تغيير الخطة</a>
+            <a href="/#pricing" class="btn btn-outline">تغيير الخطة</a>
             <button class="btn btn-ghost" onclick="cancelSub()">إلغاء الاشتراك</button>
         `;
     } else {
-        actions.innerHTML = `<a href="/pricing.html" class="btn btn-accent">تجديد الاشتراك</a>`;
+        actions.innerHTML = `<a href="/#pricing" class="btn btn-accent">تجديد الاشتراك</a>`;
     }
 }
 

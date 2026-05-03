@@ -27,7 +27,7 @@ function requireQuota(req, res, next) {
             return res.status(402).json({
                 error:   'انتهى اشتراكك. يرجى تجديد الاشتراك للمتابعة.',
                 code:    'SUBSCRIPTION_EXPIRED',
-                upgrade_url: '/pricing.html',
+                upgrade_url: '/#pricing',
             });
         }
     }
@@ -39,7 +39,7 @@ function requireQuota(req, res, next) {
             quota_used:  user.quota_used,
             quota_limit: user.quota_limit,
             reset_at:    user.quota_reset_at,
-            upgrade_url: '/pricing.html',
+            upgrade_url: '/#pricing',
         });
     }
 

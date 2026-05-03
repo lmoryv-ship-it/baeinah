@@ -5,6 +5,27 @@ const rateLimit = require('express-rate-limit');
 const path    = require('path');
 require('dotenv').config();
 
+// بدء قاعدة البيانات وإنشاء مستخدم الأدمن تلقائياً
+const { getDb } = require('./db/database');
+(async () => {
+    const db = getDb();
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPass  = process.env.ADMIN_PASSWORD;
+    if (adminEmail && adminPass) {
+        const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+        if (!exists) {
+            const bcrypt = require('bcryptjs');
+            const { v4: uuidv4 } = require('uuid');
+            const hash = await bcrypt.hash(adminPass, 12);
+            db.prepare(`
+                INSERT INTO users (id, name, email, password_hash, role, plan, quota_limit)
+                VALUES (?, 'مدير النظام', ?, ?, 'admin', 'pro', 9999)
+            `).run(uuidv4(), adminEmail, hash);
+            console.log(`✅ تم إنشاء حساب الأدمن: ${adminEmail}`);
+        }
+    }
+})().catch(err => console.error('خطأ في إنشاء حساب الأدمن:', err.message));
+
 const authRoutes         = require('./routes/auth.routes');
 const consultationRoutes = require('./routes/consultation.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');

@@ -25,7 +25,7 @@ async function handleLogin(e) {
         if (!res.ok) throw new Error(data.error);
 
         saveSession(data);
-        window.location.href = '/';
+        window.location.href = '/dashboard.html';
     } catch (err) {
         showError('loginError', err.message);
     } finally {
@@ -54,7 +54,7 @@ async function handleRegister(e) {
         if (!res.ok) throw new Error(data.error);
 
         saveSession(data);
-        window.location.href = '/';
+        window.location.href = '/dashboard.html';
     } catch (err) {
         showError('registerError', err.message);
     } finally {
@@ -84,3 +84,11 @@ function setLoading(form, state) {
 
 function showError(id, msg)  { const el = document.getElementById(id); el.textContent = msg; el.classList.remove('hidden'); }
 function clearError(id)      { const el = document.getElementById(id); el.textContent = ''; el.classList.add('hidden'); }
+
+// تحويل تلقائي إذا كان المستخدم مسجّلاً دخوله مسبقاً
+if (localStorage.getItem('baeinah_token')) {
+    window.location.href = '/dashboard.html';
+}
+
+// دعم الرابط /auth.html#register
+if (location.hash === '#register') switchTab('register');

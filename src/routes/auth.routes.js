@@ -58,7 +58,10 @@ router.post('/refresh', (req, res, next) => {
 router.get('/me', requireAuth, (req, res) => {
     const db   = getDb();
     const user = db.prepare(
-        'SELECT id, name, email, phone, role, plan, credits, created_at FROM users WHERE id = ?'
+        `SELECT id, name, email, phone, role, plan,
+                quota_used, quota_limit, quota_reset_at,
+                subscription_status, subscription_ends_at, created_at
+         FROM users WHERE id = ?`
     ).get(req.user.id);
 
     if (!user) return res.status(404).json({ error: 'المستخدم غير موجود' });

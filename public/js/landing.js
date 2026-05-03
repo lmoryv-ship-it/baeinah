@@ -38,6 +38,18 @@ async function loadPricing() {
     }
 }
 
+// تحديث زر الـ Navbar للمستخدم المسجّل
+function updateNavForUser() {
+    const token = localStorage.getItem('baeinah_token');
+    const navCta = document.querySelector('.nav-cta');
+    if (!navCta) return;
+    if (token) {
+        navCta.innerHTML = `
+            <a href="/dashboard.html" class="btn btn-ghost">لوحتي</a>
+            <a href="/app.html" class="btn btn-accent">تحليل جديد</a>`;
+    }
+}
+
 // Navbar scroll effect
 window.addEventListener('scroll', () => {
     document.getElementById('navbar').style.boxShadow =
@@ -45,3 +57,4 @@ window.addEventListener('scroll', () => {
 });
 
 loadPricing();
+updateNavForUser();

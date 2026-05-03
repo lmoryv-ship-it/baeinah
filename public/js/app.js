@@ -136,7 +136,11 @@ async function analyzeContract() {
         }
 
         const data = await res.json();
-        if (res.status === 429) { showError(data.error); setLoading(false); return; }
+        if (res.status === 429 || res.status === 402) {
+            showError(`${data.error}${data.upgrade_url ? ' <a href="/#pricing" style="color:var(--accent);font-weight:700">ترقية الخطة ←</a>' : ''}`);
+            setLoading(false);
+            return;
+        }
         if (!res.ok || !data.success) throw new Error(data.error || 'حدث خطأ أثناء التحليل');
 
         lastConsultationId = data.consultationId;
@@ -162,11 +166,14 @@ function renderResult(result) {
 
     const risksList = document.getElementById('risksList');
     risksList.innerHTML = '';
-    const risks = result.risks || result.contract_issues || result.liability_risks || [];
+    const risks = result.risks || result.contract_issues || result.liability_risks || result.key_findings || [];
     risks.forEach(r => {
         const li = document.createElement('li');
-        li.className = `risk-item-${r.severity || 'medium'}`;
-        li.textContent = `${r.description || r.issue || r.type || ''}${r.article ? ` (${r.article})` : ''}`;
+        li.className = `risk-item-${r.severity || r.priority || 'medium'}`;
+        const desc = r.description || r.issue || r.finding || r.type || '';
+        const art  = r.article ? ` <em style="font-size:.8em;color:var(--muted)">(${r.article})</em>` : '';
+        const rec  = r.recommendation || r.fix || r.mitigation || '';
+        li.innerHTML = `${desc}${art}${rec ? `<br><span style="color:#047857;font-size:.8em">↳ ${rec}</span>` : ''}`;
         risksList.appendChild(li);
     });
     if (!risks.length) risksList.innerHTML = '<li>لم يتم رصد مخاطر جوهرية</li>';
@@ -175,7 +182,13 @@ function renderResult(result) {
     recsList.innerHTML = (result.recommendations || []).map(r => `<li>${r}</li>`).join('') || '<li>—</li>';
 
     const refsList = document.getElementById('refsList');
-    refsList.innerHTML = (result.legal_references || []).map(r => `<li>${r.law} — المادة ${r.article}</li>`).join('') || '<li>—</li>';
+    const refs = result.legal_references || result.applicable_laws || [];
+    refsList.innerHTML = refs.map(r => {
+        const law  = r.law  || r.name || '';
+        const art  = r.article ? ` — المادة ${r.article}` : '';
+        const note = r.text || r.relevance || '';
+        return `<li><strong>${law}${art}</strong>${note ? `<br><span style="color:var(--muted);font-size:.8em">${note}</span>` : ''}</li>`;
+    }).join('') || '<li>—</li>';
 
     document.getElementById('rawJson').textContent = JSON.stringify(result, null, 2);
 
@@ -231,7 +244,7 @@ async function loadExistingConsultation(id) {
 }
 
 function toggleRaw()   { document.getElementById('rawJson').classList.toggle('hidden'); }
-function showError(msg){ const el = document.getElementById('errorSection'); el.textContent = msg; el.classList.remove('hidden'); }
+function showError(msg){ const el = document.getElementById('errorSection'); el.innerHTML = msg; el.classList.remove('hidden'); }
 function hideError()   { document.getElementById('errorSection').classList.add('hidden'); }
 
 function setLoading(state) {

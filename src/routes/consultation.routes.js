@@ -97,7 +97,7 @@ router.get('/:id/pdf', async (req, res, next) => {
         if (user?.plan === 'free') {
             return res.status(403).json({
                 error:       'تصدير PDF متاح للخطط المدفوعة فقط',
-                upgrade_url: '/pricing.html',
+                upgrade_url: '/#pricing',
             });
         }
 
