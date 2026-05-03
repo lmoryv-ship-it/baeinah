@@ -77,8 +77,22 @@ async function loadSubscription() {
     const actions = document.getElementById('subActions');
 
     if (!sub || sub.status === 'initiated' || !user || user.plan === 'free') {
-        details.textContent = 'أنت على الخطة المجانية (3 استشارات شهرياً)';
-        actions.innerHTML   = `<a href="/pricing.html" class="btn btn-accent">ترقية الخطة</a>`;
+        // احسب الأيام المتبقية في التجربة
+        const freshUser = (await (await apiFetch(`${API_BASE}/auth/me`)).json()).user;
+        const trialEnd  = freshUser?.trial_ends_at ? new Date(freshUser.trial_ends_at) : null;
+        const now       = new Date();
+
+        if (trialEnd && trialEnd > now) {
+            const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+            details.innerHTML = `
+                <span class="trial-active-badge">تجربة مجانية</span>
+                تنتهي خلال <strong>${daysLeft} ${daysLeft === 1 ? 'يوم' : 'أيام'}</strong>
+                (${trialEnd.toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })})
+            `;
+        } else {
+            details.innerHTML = `<span class="trial-expired-badge">انتهت التجربة</span> اشترك الآن للمتابعة`;
+        }
+        actions.innerHTML = `<a href="/#pricing" class="btn btn-accent">اختر خطتك</a>`;
         return;
     }
 

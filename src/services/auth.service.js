@@ -18,10 +18,13 @@ async function register({ name, email, phone, password, role = 'individual' }) {
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const userId = uuidv4();
 
+    const trialEndsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+
     db.prepare(`
-        INSERT INTO users (id, name, email, phone, password_hash, role, plan)
-        VALUES (?, ?, ?, ?, ?, ?, 'free')
-    `).run(userId, name, email, phone || null, passwordHash, role);
+        INSERT INTO users (id, name, email, phone, password_hash, role, plan,
+                           subscription_status, trial_ends_at, quota_limit)
+        VALUES (?, ?, ?, ?, ?, ?, 'free', 'trialing', ?, 5)
+    `).run(userId, name, email, phone || null, passwordHash, role, trialEndsAt);
 
     const user = db.prepare('SELECT id, name, email, role, plan, quota_used, quota_limit FROM users WHERE id = ?').get(userId);
     const tokens = generateTokens(user);
