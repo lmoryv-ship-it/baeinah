@@ -39,7 +39,7 @@ async function login({ email, password }) {
 
     db.prepare(`UPDATE users SET updated_at = datetime('now') WHERE id = ?`).run(user.id);
 
-    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan, credits: user.credits };
+    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan, quota_used: user.quota_used, quota_limit: user.quota_limit };
     const tokens = generateTokens(safeUser);
     return { user: safeUser, ...tokens };
 }
@@ -57,7 +57,7 @@ function refreshToken(token) {
     }
 
     const db   = getDb();
-    const user = db.prepare('SELECT id, name, email, role, plan, credits FROM users WHERE id = ?').get(payload.sub);
+    const user = db.prepare('SELECT id, name, email, role, plan, quota_used, quota_limit FROM users WHERE id = ?').get(payload.sub);
     if (!user) throw Object.assign(new Error('المستخدم غير موجود'), { status: 401 });
 
     return generateTokens(user);

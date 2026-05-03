@@ -83,10 +83,21 @@ async function handleWebhook(payload) {
             WHERE moyasar_id = ?
         `).run(now.toISOString(), expiry.toISOString(), moyasarId);
 
+        const quotaMap = { basic: 100, professional: 500, enterprise: 1000 };
+
         db.prepare(`
-            UPDATE users SET plan = ?, credits = credits + ?
+            UPDATE users
+            SET plan = ?, quota_limit = ?, quota_used = 0,
+                subscription_status = 'active', subscription_ends_at = ?,
+                quota_reset_at = ?, updated_at = datetime('now')
             WHERE id = ?
-        `).run(subscription.plan, planData?.credits || 30, subscription.user_id);
+        `).run(
+            subscription.plan,
+            quotaMap[subscription.plan] || 30,
+            expiry.toISOString(),
+            expiry.toISOString().split('T')[0],
+            subscription.user_id
+        );
     } else if (status === 'failed') {
         db.prepare(`UPDATE subscriptions SET status = 'failed' WHERE moyasar_id = ?`).run(moyasarId);
     }

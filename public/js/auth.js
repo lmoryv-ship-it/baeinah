@@ -25,7 +25,7 @@ async function handleLogin(e) {
         if (!res.ok) throw new Error(data.error);
 
         saveSession(data);
-        window.location.href = '/';
+        window.location.href = data.user?.role === 'admin' ? '/admin.html' : '/dashboard.html';
     } catch (err) {
         showError('loginError', err.message);
     } finally {
@@ -54,7 +54,7 @@ async function handleRegister(e) {
         if (!res.ok) throw new Error(data.error);
 
         saveSession(data);
-        window.location.href = '/';
+        window.location.href = '/dashboard.html';
     } catch (err) {
         showError('registerError', err.message);
     } finally {
@@ -66,6 +66,11 @@ function saveSession({ accessToken, refreshToken, user }) {
     localStorage.setItem('baeinah_token',   accessToken);
     localStorage.setItem('baeinah_refresh',  refreshToken);
     localStorage.setItem('baeinah_user',     JSON.stringify(user));
+}
+
+// Auto-switch to register tab if URL hash is #register
+if (window.location.hash === '#register') {
+    switchTab('register');
 }
 
 function togglePassword(id) {

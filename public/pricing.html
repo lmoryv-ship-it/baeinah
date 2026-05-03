@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بَيِّنة — الاشتراك والأسعار</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .pricing-page { padding: 48px 0 80px; background: var(--bg); min-height: calc(100vh - 60px); }
+        .pricing-hero { background: linear-gradient(135deg, var(--primary) 0%, #1a3a6b 100%); color: #fff; text-align: center; padding: 48px 24px 56px; margin-bottom: -20px; }
+        .pricing-hero h1 { font-size: clamp(1.6rem,3vw,2.2rem); font-weight: 900; margin-bottom: 10px; }
+        .pricing-hero p  { font-size: 1rem; opacity: .8; }
+        .current-plan-banner {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 28px auto;
+            max-width: 860px;
+            box-shadow: var(--shadow);
+        }
+        .current-plan-banner p { font-size: .9rem; color: var(--muted); }
+        .current-plan-banner strong { color: var(--primary); }
+        .plans-wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+        .plans-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+        .plan-card  { background: #fff; border-radius: var(--radius); padding: 32px 24px; border: 1.5px solid var(--border); display: flex; flex-direction: column; position: relative; transition: transform .2s, box-shadow .2s; }
+        .plan-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .plan-card.featured { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(201,146,58,.12), var(--shadow-lg); }
+        .plan-card.active-plan { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(22,163,74,.1); }
+        .plan-badge { position: absolute; top: -13px; right: 50%; transform: translateX(50%); background: var(--accent); color: #fff; font-size: .72rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+        .active-badge { background: #16a34a; }
+        .plan-name  { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+        .plan-price { font-size: 2.2rem; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 4px; }
+        .plan-price span { font-size: .9rem; font-weight: 400; color: var(--muted); }
+        .plan-period { font-size: .78rem; color: var(--muted); margin-bottom: 24px; }
+        .plan-features { list-style: none; flex: 1; margin-bottom: 28px; }
+        .plan-features li { padding: 7px 0; font-size: .86rem; border-bottom: 1px solid var(--border); }
+        .plan-features li:last-child { border: none; }
+        .plan-features li::before { content: '✓ '; color: var(--accent); font-weight: 700; }
+        .btn-subscribe { width: 100%; padding: 13px; font-size: .95rem; font-weight: 700; border-radius: var(--radius); border: none; cursor: pointer; transition: transform .15s, opacity .15s; }
+        .btn-subscribe:hover:not(:disabled) { transform: translateY(-1px); }
+        .btn-subscribe:disabled { opacity: .5; cursor: not-allowed; }
+        .btn-current { background: #f0fdf4; color: #16a34a; border: 2px solid #16a34a !important; border: none; }
+        .btn-upgrade { background: var(--accent); color: #fff; }
+        .btn-free    { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 12px 28px; border-radius: var(--radius); font-size: .9rem; z-index: 999; display: none; box-shadow: var(--shadow-lg); }
+        .payment-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 500; display: none; align-items: center; justify-content: center; }
+        .payment-modal { background: #fff; border-radius: 16px; padding: 40px 36px; max-width: 440px; width: 90%; text-align: center; }
+        .payment-modal h3 { color: var(--primary); font-size: 1.3rem; margin-bottom: 12px; }
+        .payment-modal p  { color: var(--muted); font-size: .9rem; margin-bottom: 28px; line-height: 1.7; }
+        .payment-modal .amount { font-size: 2rem; font-weight: 900; color: var(--primary); margin: 12px 0; }
+        .payment-modal .modal-actions { display: flex; gap: 12px; justify-content: center; }
+        .loader-sm { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        @media (max-width: 700px) { .plans-grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; } }
+    </style>
+</head>
+<body class="dash-body">
+
+<header class="dash-header">
+    <div class="container dash-nav">
+        <a href="/" class="logo"><span class="logo-icon">⚖</span><span class="logo-text">بَيِّنة</span></a>
+        <div class="dash-nav-links">
+            <a href="/dashboard.html">لوحة التحكم</a>
+            <a href="/app.html">استشارة جديدة</a>
+        </div>
+        <div class="dash-user" id="dashUser"></div>
+    </div>
+</header>
+
+<section class="pricing-hero">
+    <h1>اشتراك شهري شفاف</h1>
+    <p>بدون التزامات طويلة · إلغاء في أي وقت · تُجدَّد الحصة أول كل شهر</p>
+</section>
+
+<div class="pricing-page">
+    <div class="plans-wrap">
+
+        <div class="current-plan-banner" id="currentBanner">
+            <p>جارٍ تحميل بيانات اشتراكك…</p>
+        </div>
+
+        <div class="plans-grid" id="plansGrid">
+            <!-- تُملأ ديناميكياً -->
+        </div>
+
+        <p style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:24px">
+            جميع الأسعار بالريال السعودي شاملة ضريبة القيمة المضافة · الدفع عبر بوابة ميسر الآمنة
+        </p>
+    </div>
+</div>
+
+<!-- مودال تأكيد الدفع -->
+<div class="payment-modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="payment-modal" id="paymentModal">
+        <h3 id="modalTitle">تأكيد الاشتراك</h3>
+        <p id="modalDesc"></p>
+        <div class="amount" id="modalAmount"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+            <button class="btn btn-accent" id="confirmPayBtn" onclick="confirmPayment()">
+                <span id="confirmBtnText">انتقل للدفع</span>
+                <span class="loader-sm hidden" id="confirmLoader"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+let selectedPlan = null;
+let currentUser  = null;
+
+function getToken() { return localStorage.getItem('baeinah_token'); }
+function logout()   { localStorage.clear(); location.href = '/'; }
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` };
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!getToken()) { location.href = '/auth.html'; return; }
+    await Promise.all([loadUser(), loadPlans()]);
+});
+
+async function loadUser() {
+    try {
+        const res  = await fetch(`${API}/auth/me`, { headers: authHeaders() });
+        if (res.status === 401) { logout(); return; }
+        const data = await res.json();
+        if (!data.success) return;
+        currentUser = data.user;
+
+        const planLabels = { free: 'مجاني', basic: 'الأساسي', pro: 'المتقدم' };
+        const banner = document.getElementById('currentBanner');
+        banner.innerHTML = `
+            <p>اشتراكك الحالي: <strong>${planLabels[currentUser.plan] || currentUser.plan}</strong>
+               · استهلاك هذا الشهر: <strong>${currentUser.quota_used} / ${currentUser.quota_limit}</strong></p>
+            <a href="/dashboard.html" class="btn btn-ghost" style="font-size:.85rem;padding:8px 16px">← لوحة التحكم</a>
+        `;
+
+        const el = document.getElementById('dashUser');
+        el.innerHTML = `<span>${currentUser.name.split(' ')[0]}</span><button onclick="logout()">خروج</button>`;
+    } catch {}
+}
+
+async function loadPlans() {
+    try {
+        const res  = await fetch(`${API}/subscriptions/plans`);
+        const data = await res.json();
+        renderPlans(data.plans);
+    } catch {
+        document.getElementById('plansGrid').innerHTML =
+            '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">تعذّر تحميل الخطط. أعد تحميل الصفحة.</p>';
+    }
+}
+
+function renderPlans(plans) {
+    const order    = ['free', 'basic', 'pro'];
+    const featured = 'basic';
+    const grid     = document.getElementById('plansGrid');
+
+    grid.innerHTML = order.map(key => {
+        const p           = plans[key];
+        const isFeatured  = key === featured;
+        const isCurrent   = currentUser?.plan === key;
+        const price       = p.amount === 0 ? '0' : (p.amount / 100).toLocaleString('ar-SA');
+
+        let btnHTML;
+        if (isCurrent) {
+            btnHTML = `<button class="btn-subscribe btn-current" disabled>✓ خطتك الحالية</button>`;
+        } else if (key === 'free') {
+            btnHTML = `<button class="btn-subscribe btn-free" onclick="downgradeToFree()">الرجوع للمجاني</button>`;
+        } else {
+            btnHTML = `<button class="btn-subscribe btn-upgrade" onclick="openModal('${key}','${p.label}',${p.amount})">اشترك الآن</button>`;
+        }
+
+        return `
+        <div class="plan-card ${isFeatured ? 'featured' : ''} ${isCurrent ? 'active-plan' : ''}">
+            ${isFeatured && !isCurrent ? '<div class="plan-badge">الأكثر طلباً</div>' : ''}
+            ${isCurrent ? '<div class="plan-badge active-badge">خطتك الحالية</div>' : ''}
+            <div class="plan-name">${p.label}</div>
+            <div class="plan-price">${price} <span>ريال</span></div>
+            <div class="plan-period">${key === 'free' ? 'مجاناً دائماً' : 'شهرياً · يُجدَّد تلقائياً'}</div>
+            <ul class="plan-features">
+                ${p.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+            ${btnHTML}
+        </div>`;
+    }).join('');
+}
+
+function openModal(planKey, planLabel, amount) {
+    selectedPlan = planKey;
+    document.getElementById('modalTitle').textContent = `الاشتراك في خطة ${planLabel}`;
+    document.getElementById('modalDesc').textContent =
+        `سيتم تحويلك لبوابة ميسر الآمنة لإتمام الدفع. يمكنك الإلغاء في أي وقت من لوحة التحكم.`;
+    document.getElementById('modalAmount').textContent = `${(amount/100).toLocaleString('ar-SA')} ريال / شهر`;
+    document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function closeModal(e) {
+    if (e && e.target !== document.getElementById('modalOverlay')) return;
+    document.getElementById('modalOverlay').style.display = 'none';
+    selectedPlan = null;
+}
+
+async function confirmPayment() {
+    if (!selectedPlan) return;
+    setConfirmLoading(true);
+    try {
+        const callbackUrl = `${location.origin}/payment-callback.html`;
+        const res  = await fetch(`${API}/subscriptions`, {
+            method:  'POST',
+            headers: authHeaders(),
+            body:    JSON.stringify({ plan: selectedPlan, callback_url: callbackUrl }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'فشل بدء الدفع');
+
+        if (data.payment_url) {
+            location.href = data.payment_url;
+        } else {
+            showToast('تم تسجيل طلب الاشتراك. سيتم التفعيل بعد إتمام الدفع.');
+            closeModal();
+            setTimeout(() => location.href = '/dashboard.html', 2000);
+        }
+    } catch (err) {
+        showToast(err.message, true);
+        setConfirmLoading(false);
+    }
+}
+
+async function downgradeToFree() {
+    if (!confirm('هل تريد إلغاء اشتراكك والرجوع للخطة المجانية (3 استشارات شهرياً)؟')) return;
+    try {
+        const res  = await fetch(`${API}/subscriptions/me`, { method: 'DELETE', headers: authHeaders() });
+        const data = await res.json();
+        if (data.success) {
+            showToast('تم إلغاء الاشتراك. سيستمر اشتراكك حتى نهاية الدورة الحالية.');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(data.error || 'حدث خطأ', true);
+        }
+    } catch {
+        showToast('حدث خطأ. يرجى المحاولة لاحقاً.', true);
+    }
+}
+
+function setConfirmLoading(state) {
+    document.getElementById('confirmPayBtn').disabled = state;
+    document.getElementById('confirmBtnText').textContent = state ? 'جارٍ التحويل…' : 'انتقل للدفع';
+    document.getElementById('confirmLoader').classList.toggle('hidden', !state);
+}
+
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#dc2626' : 'var(--primary)';
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
+</script>
+</body>
+</html>
