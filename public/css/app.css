@@ -89,6 +89,16 @@
 
 .form-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: 0.87rem; margin-top: 12px; }
 
+.btn-export {
+    background: var(--primary); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 6px 14px; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: background .2s, transform .15s;
+    white-space: nowrap;
+}
+.btn-export:hover   { background: #1a3a6b; transform: translateY(-1px); }
+.btn-export:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
 .hidden { display: none !important; }
 
 @media (max-width: 900px) {

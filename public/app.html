@@ -92,7 +92,12 @@
             <div id="resultContent" class="hidden">
                 <div class="result-top">
                     <h3>نتائج التحليل</h3>
-                    <span id="riskBadge" class="risk-badge"></span>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <span id="riskBadge" class="risk-badge"></span>
+                        <button class="btn-export hidden" id="exportPdfBtn" onclick="exportPdf()">
+                            ⬇ تصدير PDF
+                        </button>
+                    </div>
                 </div>
 
                 <div class="result-card">

@@ -3,8 +3,9 @@ const API_BASE = '/api';
 const RISK_LABELS = { low: 'مخاطر منخفضة', medium: 'مخاطر متوسطة', high: 'مخاطر عالية', critical: 'مخاطر حرجة' };
 const FILE_ICONS  = { pdf: '📕', docx: '📘', doc: '📘', txt: '📄' };
 
-let selectedFile = null;
-let inputMode    = 'text';
+let selectedFile       = null;
+let inputMode          = 'text';
+let lastConsultationId = null;
 
 // ── المصادقة ──────────────────────────────────────────────
 function getToken()  { return localStorage.getItem('baeinah_token'); }
@@ -138,6 +139,7 @@ async function analyzeContract() {
         if (res.status === 429) { showError(data.error); setLoading(false); return; }
         if (!res.ok || !data.success) throw new Error(data.error || 'حدث خطأ أثناء التحليل');
 
+        lastConsultationId = data.consultationId;
         renderResult(data.result);
         loadQuotaInfo();
     } catch (err) {
@@ -176,7 +178,49 @@ function renderResult(result) {
     refsList.innerHTML = (result.legal_references || []).map(r => `<li>${r.law} — المادة ${r.article}</li>`).join('') || '<li>—</li>';
 
     document.getElementById('rawJson').textContent = JSON.stringify(result, null, 2);
+
+    // أظهر زر PDF للمشتركين فقط
+    const user = getUser();
+    if (user && user.plan !== 'free') {
+        document.getElementById('exportPdfBtn').classList.remove('hidden');
+    }
+
     content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function exportPdf() {
+    const id = lastConsultationId;
+    if (!id) return;
+
+    const btn = document.getElementById('exportPdfBtn');
+    btn.disabled     = true;
+    btn.textContent  = '⏳ جارٍ التصدير…';
+
+    try {
+        const res = await fetch(`${API_BASE}/consultations/${id}/pdf`, {
+            headers: { Authorization: `Bearer ${getToken()}` },
+        });
+
+        if (res.status === 403) {
+            const data = await res.json();
+            alert(data.error);
+            return;
+        }
+        if (!res.ok) throw new Error('فشل تصدير التقرير');
+
+        const blob     = await res.blob();
+        const url      = URL.createObjectURL(blob);
+        const anchor   = document.createElement('a');
+        anchor.href     = url;
+        anchor.download = `baeinah-report-${id.slice(0,8)}.pdf`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = '⬇ تصدير PDF';
+    }
 }
 
 async function loadExistingConsultation(id) {

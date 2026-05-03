@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بَيِّنة — لوحة الإدارة</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="dash-body">
+
+<header class="dash-header">
+    <div class="container dash-nav">
+        <a href="/" class="logo"><span class="logo-icon">⚖</span><span class="logo-text">بَيِّنة — Admin</span></a>
+        <div class="dash-nav-links">
+            <a href="#overview"       class="admin-tab active" data-tab="overview">نظرة عامة</a>
+            <a href="#users"          class="admin-tab"        data-tab="users">المستخدمون</a>
+            <a href="#consultations"  class="admin-tab"        data-tab="consultations">الاستشارات</a>
+            <a href="#subscriptions"  class="admin-tab"        data-tab="subscriptions">الاشتراكات</a>
+        </div>
+        <div class="dash-user" id="dashUser"></div>
+    </div>
+</header>
+
+<main class="container dash-main">
+
+    <!-- نظرة عامة -->
+    <section id="tab-overview">
+        <div class="dash-stats" id="statsCards" style="grid-template-columns:repeat(3,1fr)"></div>
+
+        <div class="admin-charts">
+            <div class="chart-card">
+                <h3>الاستشارات حسب النوع</h3>
+                <div id="chartByType" class="bar-chart"></div>
+            </div>
+            <div class="chart-card">
+                <h3>توزيع مستوى المخاطر</h3>
+                <div id="chartByRisk" class="bar-chart"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- المستخدمون -->
+    <section id="tab-users" class="hidden">
+        <div class="admin-toolbar">
+            <input type="text" id="userSearch" placeholder="بحث بالاسم أو البريد…"
+                   oninput="searchUsers()" class="admin-search">
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>الاسم</th><th>البريد</th><th>الخطة</th>
+                        <th>الاستهلاك</th><th>تاريخ التسجيل</th><th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="usersPager"></div>
+    </section>
+
+    <!-- الاستشارات -->
+    <section id="tab-consultations" class="hidden">
+        <div class="admin-table-wrap">
+            <table class="admin-table" id="consultTable">
+                <thead>
+                    <tr>
+                        <th>المستخدم</th><th>النوع</th><th>الحالة</th>
+                        <th>المخاطر</th><th>الـ Tokens</th><th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody id="consultBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="consultPager"></div>
+    </section>
+
+    <!-- الاشتراكات -->
+    <section id="tab-subscriptions" class="hidden">
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>المستخدم</th><th>الخطة</th><th>الحالة</th>
+                        <th>المبلغ</th><th>ينتهي</th>
+                    </tr>
+                </thead>
+                <tbody id="subsBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

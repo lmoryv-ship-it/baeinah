@@ -5,6 +5,8 @@ const { requireAuth }  = require('../middleware/auth.middleware');
 const { requireQuota } = require('../middleware/quota.middleware');
 const { upload }       = require('../middleware/upload.middleware');
 const { extractText, deleteFile, getFileMetadata } = require('../services/file.service');
+const { generatePdfReport } = require('../services/pdf.service');
+const { getDb } = require('../db/database');
 const {
     createConsultation,
     getConsultation,
@@ -77,6 +79,35 @@ router.get('/:id', async (req, res, next) => {
     try {
         const consultation = getConsultation(req.params.id, req.user.id);
         res.json({ success: true, consultation });
+    } catch (err) { next(err); }
+});
+
+// GET /api/consultations/:id/pdf  — تصدير التقرير PDF
+router.get('/:id/pdf', async (req, res, next) => {
+    try {
+        const consultation = getConsultation(req.params.id, req.user.id);
+
+        if (consultation.status !== 'completed') {
+            return res.status(400).json({ error: 'التقرير غير جاهز بعد' });
+        }
+
+        // خطة مجانية: لا تصدير PDF
+        const db   = getDb();
+        const user = db.prepare('SELECT plan, name FROM users WHERE id = ?').get(req.user.id);
+        if (user?.plan === 'free') {
+            return res.status(403).json({
+                error:       'تصدير PDF متاح للخطط المدفوعة فقط',
+                upgrade_url: '/pricing.html',
+            });
+        }
+
+        const pdfBuffer = await generatePdfReport(consultation, user);
+        const filename  = `baeinah-report-${consultation.id.slice(0, 8)}.pdf`;
+
+        res.setHeader('Content-Type',        'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length',      pdfBuffer.length);
+        res.send(pdfBuffer);
     } catch (err) { next(err); }
 });
 

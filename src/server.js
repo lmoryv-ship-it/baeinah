@@ -9,6 +9,7 @@ const authRoutes         = require('./routes/auth.routes');
 const consultationRoutes = require('./routes/consultation.routes');
 const subscriptionRoutes = require('./routes/subscription.routes');
 const paymentRoutes      = require('./routes/payment.routes');
+const adminRoutes        = require('./routes/admin.routes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +35,7 @@ app.use('/api/auth',          authLimiter, authRoutes);
 app.use('/api/consultations', apiLimiter,  consultationRoutes);
 app.use('/api/subscriptions', apiLimiter,  subscriptionRoutes);
 app.use('/api/payments',      apiLimiter,  paymentRoutes);
+app.use('/api/admin',         apiLimiter,  adminRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', app: 'بَيِّنة', version: '1.0.0' }));
 
