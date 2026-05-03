@@ -8,7 +8,7 @@ const TYPE_LABELS = {
     general:           { label: 'استفسار قانوني',    icon: '⚖' },
 };
 const RISK_LABELS = { low: 'منخفض', medium: 'متوسط', high: 'عالٍ', critical: 'حرج' };
-const PLAN_LABELS = { free: 'مجاني', starter: 'المبتدئ', professional: 'الاحترافي', enterprise: 'المؤسسات' };
+const PLAN_LABELS = { free: 'مجاني', basic: 'الأساسي', pro: 'المتقدم' };
 
 function getToken()  { return localStorage.getItem('baeinah_token'); }
 function getUser()   { try { return JSON.parse(localStorage.getItem('baeinah_user')); } catch { return null; } }

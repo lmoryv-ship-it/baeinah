@@ -19,11 +19,11 @@ async function register({ name, email, phone, password, role = 'individual' }) {
     const userId = uuidv4();
 
     db.prepare(`
-        INSERT INTO users (id, name, email, phone, password_hash, role, plan, credits)
-        VALUES (?, ?, ?, ?, ?, ?, 'free', 3)
+        INSERT INTO users (id, name, email, phone, password_hash, role, plan)
+        VALUES (?, ?, ?, ?, ?, ?, 'free')
     `).run(userId, name, email, phone || null, passwordHash, role);
 
-    const user = db.prepare('SELECT id, name, email, role, plan, credits FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT id, name, email, role, plan, quota_used, quota_limit FROM users WHERE id = ?').get(userId);
     const tokens = generateTokens(user);
     return { user, ...tokens };
 }

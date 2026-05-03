@@ -6,8 +6,8 @@ async function loadPricing() {
         const plans = data.plans;
 
         const grid  = document.getElementById('pricingGrid');
-        const order = ['free', 'starter', 'professional', 'enterprise'];
-        const featured = 'professional';
+        const order = ['free', 'basic', 'pro'];
+        const featured = 'basic';
 
         grid.innerHTML = order.map(key => {
             const p = plans[key];
@@ -15,8 +15,8 @@ async function loadPricing() {
             const price = p.amount === 0 ? '0' : (p.amount / 100).toLocaleString('ar-SA');
             const cta   = key === 'free'
                 ? `<a href="/auth.html" class="btn btn-outline plan-cta">ابدأ مجاناً</a>`
-                : key === 'enterprise'
-                ? `<a href="mailto:sales@baeinah.sa" class="btn btn-outline plan-cta">تواصل معنا</a>`
+                : key === 'pro'
+                ? `<a href="/auth.html" class="btn btn-accent plan-cta" data-plan="${key}">اشترك الآن</a>`
                 : `<a href="/auth.html" class="btn btn-accent plan-cta" data-plan="${key}">اشترك الآن</a>`;
 
             return `

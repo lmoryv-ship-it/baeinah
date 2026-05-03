@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     role                TEXT NOT NULL DEFAULT 'individual'
                             CHECK(role IN ('individual','startup','medical','enterprise','admin')),
     plan                TEXT NOT NULL DEFAULT 'free'
-                            CHECK(plan IN ('free','starter','professional','enterprise')),
+                            CHECK(plan IN ('free','basic','pro')),
     -- حصة شهرية
     quota_used          INTEGER NOT NULL DEFAULT 0,
     quota_limit         INTEGER NOT NULL DEFAULT 3,
