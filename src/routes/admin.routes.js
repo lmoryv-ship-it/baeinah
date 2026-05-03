@@ -114,4 +114,53 @@ router.get('/subscriptions', (req, res) => {
     res.json({ success: true, subscriptions: rows });
 });
 
+// PATCH /api/admin/users/:id/role  — تغيير دور المستخدم
+router.patch('/users/:id/role', (req, res) => {
+    const db     = getDb();
+    const { role } = req.body;
+    const VALID_ROLES = ['individual', 'startup', 'medical', 'enterprise', 'admin'];
+
+    if (!VALID_ROLES.includes(role)) {
+        return res.status(400).json({ error: 'دور غير صالح' });
+    }
+
+    const result = db.prepare(`UPDATE users SET role = ?, updated_at = datetime('now') WHERE id = ?`).run(role, req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'المستخدم غير موجود' });
+
+    res.json({ success: true });
+});
+
+// DELETE /api/admin/users/:id  — حذف مستخدم
+router.delete('/users/:id', (req, res) => {
+    const db = getDb();
+
+    // لا تسمح بحذف الأدمن الأخير
+    const adminCount = db.prepare(`SELECT COUNT(*) as n FROM users WHERE role = 'admin'`).get().n;
+    const target     = db.prepare(`SELECT role FROM users WHERE id = ?`).get(req.params.id);
+
+    if (!target) return res.status(404).json({ error: 'المستخدم غير موجود' });
+    if (target.role === 'admin' && adminCount <= 1) {
+        return res.status(400).json({ error: 'لا يمكن حذف المدير الأخير' });
+    }
+
+    db.prepare(`DELETE FROM users WHERE id = ?`).run(req.params.id);
+    res.json({ success: true });
+});
+
+// GET /api/admin/users/:id  — تفاصيل مستخدم
+router.get('/users/:id', (req, res) => {
+    const db   = getDb();
+    const user = db.prepare(`
+        SELECT u.*, s.plan as sub_plan, s.status as sub_status,
+               s.current_period_end, s.moyasar_id
+        FROM users u
+        LEFT JOIN subscriptions s ON s.id = u.subscription_id
+        WHERE u.id = ?
+    `).get(req.params.id);
+
+    if (!user) return res.status(404).json({ error: 'المستخدم غير موجود' });
+    delete user.password_hash;
+    res.json({ success: true, user });
+});
+
 module.exports = router;

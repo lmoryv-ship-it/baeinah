@@ -65,4 +65,59 @@ router.get('/me', requireAuth, (req, res) => {
     res.json({ success: true, user });
 });
 
+// PUT /api/auth/profile  — تحديث الاسم والجوال
+router.put('/profile', requireAuth, async (req, res, next) => {
+    try {
+        const { name, phone } = req.body;
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'الاسم مطلوب' });
+        }
+        if (name.trim().length < 2) {
+            return res.status(400).json({ error: 'الاسم يجب أن يكون حرفين على الأقل' });
+        }
+
+        const db = getDb();
+        db.prepare(`
+            UPDATE users SET name = ?, phone = ?, updated_at = datetime('now') WHERE id = ?
+        `).run(name.trim(), phone?.trim() || null, req.user.id);
+
+        const user = db.prepare(
+            'SELECT id, name, email, phone, role, plan, quota_used, quota_limit, quota_reset_at, subscription_status FROM users WHERE id = ?'
+        ).get(req.user.id);
+
+        res.json({ success: true, user });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/change-password  — تغيير كلمة المرور
+router.post('/change-password', requireAuth, async (req, res, next) => {
+    try {
+        const bcrypt = require('bcryptjs');
+        const { current_password, new_password } = req.body;
+
+        if (!current_password || !new_password) {
+            return res.status(400).json({ error: 'كلمة المرور الحالية والجديدة مطلوبتان' });
+        }
+        if (new_password.length < 8) {
+            return res.status(400).json({ error: 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل' });
+        }
+
+        const db   = getDb();
+        const user = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.user.id);
+        if (!user) return res.status(404).json({ error: 'المستخدم غير موجود' });
+
+        const valid = await bcrypt.compare(current_password, user.password_hash);
+        if (!valid) return res.status(401).json({ error: 'كلمة المرور الحالية غير صحيحة' });
+
+        const hash = await bcrypt.hash(new_password, 12);
+        db.prepare(`UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?`).run(hash, req.user.id);
+
+        res.json({ success: true, message: 'تم تغيير كلمة المرور بنجاح' });
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto  = require('crypto');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth.middleware');
 const {
@@ -8,6 +9,16 @@ const {
     cancelSubscription,
     getUserSubscription,
 } = require('../services/subscription.service');
+
+function verifyMoyasarSignature(req) {
+    const secret = process.env.MOYASAR_SECRET_KEY;
+    if (!secret) return true; // تجاوز التحقق في بيئة التطوير
+    const signature = req.headers['x-moyasar-signature'] || req.headers['x-signature'];
+    if (!signature) return false;
+    const body = JSON.stringify(req.body);
+    const expected = crypto.createHmac('sha256', secret).update(body).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+}
 
 // GET /api/subscriptions/plans  — عام (لا يتطلب تسجيل دخول)
 router.get('/plans', (_req, res) => {
@@ -42,6 +53,9 @@ router.delete('/me', requireAuth, (req, res, next) => {
 // POST /api/subscriptions/webhook  — استقبال إشعارات ميسر
 router.post('/webhook', (req, res, next) => {
     try {
+        if (!verifyMoyasarSignature(req)) {
+            return res.status(401).json({ error: 'توقيع غير صالح' });
+        }
         handleWebhook(req.body);
         res.json({ success: true });
     } catch (err) { next(err); }

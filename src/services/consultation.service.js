@@ -5,12 +5,14 @@ const { SYSTEM_PROMPT_CONTRACT } = require('../prompts/contract.prompt');
 const { SYSTEM_PROMPT_LABOR }    = require('../prompts/labor.prompt');
 const { SYSTEM_PROMPT_MEDICAL }  = require('../prompts/medical.prompt');
 const { SYSTEM_PROMPT_COMPANY }  = require('../prompts/company.prompt');
+const { SYSTEM_PROMPT_GENERAL }  = require('../prompts/general.prompt');
 
 const PROMPTS = {
     contract_analysis: SYSTEM_PROMPT_CONTRACT,
     labor_law:         SYSTEM_PROMPT_LABOR,
     medical_law:       SYSTEM_PROMPT_MEDICAL,
     company_law:       SYSTEM_PROMPT_COMPANY,
+    general:           SYSTEM_PROMPT_GENERAL,
 };
 
 async function createConsultation(userId, type, inputText, fileMetadata = null) {

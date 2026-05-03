@@ -17,6 +17,9 @@ router.use(requireAuth);
 
 const VALID_TYPES = ['contract_analysis','labor_law','medical_law','company_law','general'];
 
+const MIN_TEXT_LENGTH = 50;
+const MAX_TEXT_LENGTH = 40000;
+
 // POST /api/consultations  — نص مباشر
 router.post('/', requireQuota, async (req, res, next) => {
     try {
@@ -24,7 +27,15 @@ router.post('/', requireQuota, async (req, res, next) => {
         if (!type || !text) return res.status(400).json({ error: 'الحقول المطلوبة: type, text' });
         if (!VALID_TYPES.includes(type)) return res.status(400).json({ error: 'نوع الاستشارة غير صالح' });
 
-        const result = await createConsultation(req.user.id, type, text);
+        const trimmed = text.trim();
+        if (trimmed.length < MIN_TEXT_LENGTH) {
+            return res.status(400).json({ error: `النص قصير جداً. يجب أن يكون على الأقل ${MIN_TEXT_LENGTH} حرفاً لتحليل دقيق.` });
+        }
+        const inputText = trimmed.length > MAX_TEXT_LENGTH
+            ? trimmed.slice(0, MAX_TEXT_LENGTH) + '\n\n[... تم اقتطاع النص لتجاوزه الحد الأقصى ...]'
+            : trimmed;
+
+        const result = await createConsultation(req.user.id, type, inputText);
         res.status(201).json({ success: true, ...result });
     } catch (err) { next(err); }
 });
