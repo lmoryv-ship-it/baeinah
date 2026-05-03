@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body class="dash-body">
 
@@ -23,10 +22,9 @@
 </header>
 
 <main class="container app-main">
-
     <div class="app-grid">
 
-        <!-- نموذج التحليل -->
+        <!-- ── لوحة الإدخال ── -->
         <div class="analysis-panel">
             <h2 class="panel-title">تحليل قانوني جديد</h2>
 
@@ -43,12 +41,12 @@
 
             <div class="input-toggle">
                 <button class="toggle-btn active" id="tabText" onclick="switchInput('text')">لصق النص</button>
-                <button class="toggle-btn" id="tabFile" onclick="switchInput('file')">رفع ملف</button>
+                <button class="toggle-btn"        id="tabFile" onclick="switchInput('file')">رفع ملف</button>
             </div>
 
             <div id="textInput" class="form-group">
                 <textarea id="contractText" rows="14"
-                    placeholder="الصق هنا نص العقد أو الوثيقة القانونية للتحليل…"></textarea>
+                    placeholder="الصق هنا نص العقد أو الوثيقة أو سؤالك القانوني…"></textarea>
             </div>
 
             <div id="fileInput" class="hidden">
@@ -79,51 +77,151 @@
                 <span class="loader hidden" id="btnLoader"></span>
             </button>
 
-            <div id="errorSection" class="form-error hidden" id="errorSection"></div>
+            <div id="errorSection" class="form-error hidden"></div>
         </div>
 
-        <!-- نتائج التحليل -->
+        <!-- ── لوحة النتائج ── -->
         <div class="result-panel" id="resultPanel">
+
+            <!-- الحالة الافتراضية -->
             <div class="result-empty" id="resultEmpty">
-                <div style="font-size:3rem;margin-bottom:16px">⚖</div>
-                <p>أدخل الوثيقة واضغط "تحليل" لعرض النتائج هنا</p>
+                <div class="result-empty-icon">⚖</div>
+                <p>أدخل وثيقتك أو سؤالك القانوني<br>واضغط "تحليل" لعرض التقرير</p>
             </div>
 
+            <!-- حالة التحميل -->
+            <div id="resultLoading" class="hidden result-loading">
+                <div class="analysis-progress">
+                    <div class="progress-spinner"></div>
+                    <p class="progress-title">جارٍ التحليل القانوني…</p>
+                    <p class="progress-sub">يستغرق التحليل 10–30 ثانية</p>
+                    <div class="progress-steps">
+                        <span class="pstep active" id="ps1">قراءة الوثيقة</span>
+                        <span class="pstep" id="ps2">تحليل البنود</span>
+                        <span class="pstep" id="ps3">استخراج المخاطر</span>
+                        <span class="pstep" id="ps4">إعداد التقرير</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نتائج التحليل -->
             <div id="resultContent" class="hidden">
-                <div class="result-top">
-                    <h3>نتائج التحليل</h3>
-                    <div style="display:flex;gap:8px;align-items:center">
+
+                <!-- رأس النتيجة -->
+                <div class="result-header">
+                    <div class="result-header-info">
+                        <h3 id="resultTitle">نتائج التحليل</h3>
+                        <span id="resultTypeBadge" class="result-type-badge"></span>
+                    </div>
+                    <div class="result-header-actions">
                         <span id="riskBadge" class="risk-badge"></span>
                         <button class="btn-export hidden" id="exportPdfBtn" onclick="exportPdf()">
-                            ⬇ تصدير PDF
+                            ⬇ تقرير PDF
                         </button>
                     </div>
                 </div>
 
-                <div class="result-card">
-                    <h4>الملخص التنفيذي</h4>
+                <!-- الملخص التنفيذي -->
+                <div class="result-card result-card-summary">
+                    <div class="card-title-row">
+                        <span class="card-icon">📌</span>
+                        <h4>الملخص التنفيذي</h4>
+                    </div>
                     <p id="summaryText"></p>
                 </div>
 
-                <div class="result-card">
-                    <h4>المخاطر المحددة</h4>
-                    <ul id="risksList" class="result-list"></ul>
+                <!-- مقياس الخطورة -->
+                <div class="risk-meter-card" id="riskMeterCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">📊</span>
+                        <h4>مستوى المخاطر</h4>
+                    </div>
+                    <div class="risk-meter">
+                        <div class="risk-meter-bar">
+                            <div class="risk-meter-fill" id="riskMeterFill"></div>
+                        </div>
+                        <div class="risk-meter-labels">
+                            <span>منخفض</span>
+                            <span>متوسط</span>
+                            <span>عالٍ</span>
+                            <span>حرج</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="result-card">
-                    <h4>التوصيات</h4>
-                    <ul id="recsList" class="result-list"></ul>
+                <!-- المخاطر -->
+                <div class="result-card" id="risksCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">⚠️</span>
+                        <h4>المخاطر والثغرات</h4>
+                        <span class="card-count" id="risksCount"></span>
+                    </div>
+                    <div id="risksList" class="risks-list"></div>
                 </div>
 
-                <div class="result-card">
-                    <h4>المراجع القانونية</h4>
-                    <ul id="refsList" class="result-list"></ul>
+                <!-- الأطراف (للعقود) -->
+                <div class="result-card hidden" id="partiesCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">🤝</span>
+                        <h4>أطراف العقد</h4>
+                    </div>
+                    <div id="partiesList" class="parties-list"></div>
                 </div>
 
+                <!-- الالتزامات (للعقود) -->
+                <div class="result-card hidden" id="obligationsCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">📋</span>
+                        <h4>الالتزامات الرئيسية</h4>
+                    </div>
+                    <div id="obligationsList" class="obligations-list"></div>
+                </div>
+
+                <!-- الانتهاكات -->
+                <div class="result-card hidden" id="violationsCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">🚨</span>
+                        <h4>انتهاكات قانونية محددة</h4>
+                        <span class="card-count card-count-red" id="violationsCount"></span>
+                    </div>
+                    <div id="violationsList" class="violations-list"></div>
+                </div>
+
+                <!-- الخيارات القانونية (للاستشارة العامة) -->
+                <div class="result-card hidden" id="optionsCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">🔀</span>
+                        <h4>الخيارات القانونية المتاحة</h4>
+                    </div>
+                    <div id="optionsList" class="options-list"></div>
+                </div>
+
+                <!-- التوصيات -->
+                <div class="result-card" id="recsCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">💡</span>
+                        <h4>التوصيات</h4>
+                    </div>
+                    <ol id="recsList" class="recs-list"></ol>
+                </div>
+
+                <!-- المراجع القانونية -->
+                <div class="result-card" id="refsCard">
+                    <div class="card-title-row">
+                        <span class="card-icon">📚</span>
+                        <h4>المراجع القانونية</h4>
+                    </div>
+                    <div id="refsList" class="refs-list"></div>
+                </div>
+
+                <!-- JSON الكامل -->
                 <div class="raw-toggle">
-                    <button class="btn btn-ghost-dark" onclick="toggleRaw()">عرض JSON الكامل</button>
+                    <button class="btn-raw" onclick="toggleRaw()">
+                        <span id="rawBtnText">عرض البيانات الكاملة</span>
+                    </button>
                     <pre id="rawJson" class="raw-json hidden"></pre>
                 </div>
+
             </div>
         </div>
 
