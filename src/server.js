@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const path    = require('path');
 require('dotenv').config();
 
+const authRoutes         = require('./routes/auth.routes');
 const consultationRoutes = require('./routes/consultation.routes');
 const paymentRoutes      = require('./routes/payment.routes');
 
@@ -22,16 +23,21 @@ const apiLimiter = rateLimit({
     max: 50,
     message: { error: 'تجاوزت الحد المسموح به من الطلبات. يرجى الانتظار 15 دقيقة.' },
 });
-app.use('/api/', apiLimiter);
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'محاولات كثيرة جداً. يرجى الانتظار 15 دقيقة.' },
+});
 
-app.use('/api/consultations', consultationRoutes);
-app.use('/api/payments',      paymentRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/consultations', apiLimiter, consultationRoutes);
+app.use('/api/payments',      apiLimiter, paymentRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', app: 'بَيِّنة', version: '1.0.0' }));
 
 app.use((err, _req, res, _next) => {
     console.error(err.message);
-    res.status(500).json({ error: err.message || 'حدث خطأ داخلي في الخادم' });
+    res.status(err.status || 500).json({ error: err.message || 'حدث خطأ داخلي في الخادم' });
 });
 
 app.listen(PORT, () => {
