@@ -18,6 +18,12 @@ function getDb() {
     const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
     db.exec(schema);
 
+    // migration: أضف trial_ends_at إن لم يكن موجوداً
+    const cols = db.prepare("PRAGMA table_info(users)").all().map(c => c.name);
+    if (!cols.includes('trial_ends_at')) {
+        db.exec(`ALTER TABLE users ADD COLUMN trial_ends_at TEXT NOT NULL DEFAULT (datetime('now','+3 days'))`);
+    }
+
     return db;
 }
 

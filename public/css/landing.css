@@ -148,6 +148,7 @@ a { text-decoration: none; color: inherit; }
 .plan-price { font-size: 2.2rem; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 4px; }
 .plan-price span { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
 .plan-period { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; }
+.trial-badge { display: inline-block; background: #dcfce7; color: #16a34a; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 .plan-features { list-style: none; flex: 1; margin-bottom: 28px; }
 .plan-features li { padding: 7px 0; font-size: 0.86rem; border-bottom: 1px solid var(--border); color: var(--text); }
 .plan-features li:last-child { border: none; }

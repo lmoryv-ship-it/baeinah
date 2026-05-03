@@ -1,8 +1,9 @@
+/* ── تخطيط التطبيق ── */
 .app-main { padding: 32px 24px; }
 
 .app-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.1fr;
     gap: 28px;
     align-items: start;
 }
@@ -18,6 +19,7 @@
 
 .panel-title { font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 24px; }
 
+/* ── نموذج الإدخال ── */
 .form-group { margin-bottom: 18px; }
 .form-group label { display: block; font-weight: 600; color: var(--primary); font-size: 0.88rem; margin-bottom: 7px; }
 .form-group select,
@@ -35,12 +37,11 @@
 .form-group select:focus,
 .form-group textarea:focus { outline: none; border-color: var(--primary); background: var(--white); }
 
-/* Input toggle */
 .input-toggle { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 14px; width: fit-content; }
 .toggle-btn { padding: 7px 20px; border: none; background: transparent; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all .2s; }
-.toggle-btn.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.toggle-btn.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 
-/* Drop zone */
+/* ── منطقة الرفع ── */
 .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all .2s; background: var(--bg); }
 .drop-zone:hover, .drop-zone.drag-over { border-color: var(--primary); background: #eef3f9; }
 .drop-icon  { font-size: 2.5rem; margin-bottom: 10px; }
@@ -48,59 +49,190 @@
 .drop-hint  { font-size: 0.78rem; color: var(--muted); }
 .file-preview { display: flex; align-items: center; gap: 12px; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-top: 8px; }
 .file-type-icon { font-size: 1.8rem; }
-.file-info { flex: 1; }
+.file-info  { flex: 1; }
 .file-name  { display: block; font-weight: 600; font-size: 0.88rem; }
 .file-size  { font-size: 0.75rem; color: var(--muted); }
 .remove-file-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.9rem; padding: 4px 8px; border-radius: 6px; }
 .remove-file-btn:hover { color: #dc2626; background: #fef2f2; }
 
-/* Quota info */
+/* ── معلومات الحصة ── */
 .quota-info { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; padding: 8px 14px; background: var(--bg); border-radius: 8px; }
 .quota-info.warning { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
 
 .btn-analyze { width: 100%; justify-content: center; padding: 14px; font-size: 1rem; border-radius: var(--radius); }
-.loader { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+.loader { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Result panel */
-.result-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 0.9rem; }
-.result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.result-top h3 { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
-.risk-badge { padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; color: #fff; }
+.form-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: 0.87rem; margin-top: 12px; }
+
+/* ── لوحة النتائج ── */
+.result-empty { text-align: center; padding: 72px 20px; color: var(--muted); }
+.result-empty-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: .4; }
+.result-empty p { font-size: 0.9rem; line-height: 1.8; }
+
+/* ── حالة التحميل ── */
+.result-loading { padding: 48px 20px; }
+.analysis-progress { text-align: center; }
+.progress-spinner {
+    width: 52px; height: 52px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .9s linear infinite;
+    margin: 0 auto 20px;
+}
+.progress-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+.progress-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+.progress-steps { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.pstep {
+    font-size: 0.75rem; font-weight: 600;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--bg); color: var(--muted);
+    border: 1.5px solid var(--border);
+    transition: all .4s;
+}
+.pstep.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.pstep.done   { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
+
+/* ── رأس النتيجة ── */
+.result-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; padding-bottom: 16px;
+    border-bottom: 1.5px solid var(--border);
+    flex-wrap: wrap; gap: 12px;
+}
+.result-header-info { display: flex; align-items: center; gap: 10px; }
+.result-header-info h3 { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+.result-type-badge {
+    background: #f1f5f9; color: var(--primary);
+    font-size: 0.75rem; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+}
+.result-header-actions { display: flex; align-items: center; gap: 10px; }
+
+.risk-badge { padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; color: #fff; white-space: nowrap; }
 .risk-badge.low      { background: #16a34a; }
 .risk-badge.medium   { background: #d97706; }
 .risk-badge.high     { background: #dc2626; }
 .risk-badge.critical { background: #7c3aed; }
 
-.result-card { background: var(--bg); border-radius: 10px; padding: 18px; margin-bottom: 16px; border-right: 3px solid var(--accent); }
-.result-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
-.result-card p  { font-size: 0.87rem; color: var(--text); line-height: 1.7; }
-.result-list { list-style: none; }
-.result-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-.result-list li:last-child { border: none; }
-.risk-item-high, .risk-item-critical { color: #dc2626; }
-.risk-item-medium { color: #d97706; }
-.risk-item-low    { color: #16a34a; }
+/* ── بطاقة النتيجة ── */
+.result-card {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border-right: 3px solid var(--accent);
+}
+.result-card-summary { border-right-color: var(--primary); }
 
-.raw-toggle { text-align: center; margin-top: 8px; }
-.btn-ghost-dark { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all .2s; }
-.btn-ghost-dark:hover { border-color: var(--primary); color: var(--primary); }
-.raw-json { background: #1e1e1e; color: #d4d4d4; border-radius: 10px; padding: 16px; overflow-x: auto; font-size: 0.75rem; text-align: left; direction: ltr; margin-top: 12px; }
+.card-title-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+}
+.card-icon { font-size: 1.1rem; }
+.card-title-row h4 { font-size: 0.92rem; font-weight: 800; color: var(--primary); flex: 1; }
+.card-count {
+    font-size: 0.72rem; font-weight: 700;
+    background: var(--accent); color: #fff;
+    padding: 2px 9px; border-radius: 12px;
+}
+.card-count-red { background: #dc2626; }
 
-.form-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 10px 14px; font-size: 0.87rem; margin-top: 12px; }
+.result-card p { font-size: 0.87rem; color: var(--text); line-height: 1.75; }
 
+/* ── مقياس الخطورة ── */
+.risk-meter-card { background: var(--bg); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; border: 1px solid var(--border); }
+.risk-meter-bar { height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+.risk-meter-fill { height: 100%; border-radius: 10px; transition: width .8s ease, background .8s ease; }
+.risk-meter-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+
+/* ── المخاطر ── */
+.risks-list { display: flex; flex-direction: column; gap: 10px; }
+.risk-row-low      { border-right: 3px solid #16a34a; }
+.risk-row-medium   { border-right: 3px solid #d97706; }
+.risk-row-high     { border-right: 3px solid #dc2626; }
+.risk-row-critical { border-right: 3px solid #7c3aed; }
+.risk-row-low, .risk-row-medium, .risk-row-high, .risk-row-critical {
+    background: var(--white);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+}
+.risk-row-top { display: flex; align-items: flex-start; gap: 10px; }
+.sev-badge { font-size: 0.7rem; font-weight: 800; padding: 2px 10px; border-radius: 12px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.sev-low      { background: #dcfce7; color: #16a34a; }
+.sev-medium   { background: #fef9c3; color: #a16207; }
+.sev-high     { background: #fee2e2; color: #dc2626; }
+.sev-critical { background: #f3e8ff; color: #7c3aed; }
+.risk-desc    { font-size: 0.85rem; color: var(--text); line-height: 1.55; flex: 1; }
+.risk-article { color: var(--muted); font-style: italic; font-size: 0.8rem; }
+.risk-rec     { font-size: 0.8rem; color: #64748b; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+.no-risks     { font-size: 0.87rem; color: #16a34a; font-weight: 600; padding: 10px 0; }
+
+/* ── الأطراف ── */
+.parties-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.party-chip { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; }
+.party-name { display: block; font-weight: 700; font-size: 0.88rem; color: var(--primary); }
+.party-role { font-size: 0.75rem; color: var(--muted); }
+
+/* ── الالتزامات ── */
+.obligations-list { display: flex; flex-direction: column; gap: 8px; }
+.obligation-row { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.obligation-row:last-child { border: none; }
+.ob-party { font-size: 0.75rem; font-weight: 700; background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 12px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+.ob-text  { font-size: 0.85rem; color: var(--text); line-height: 1.55; }
+
+/* ── الانتهاكات ── */
+.violations-list { display: flex; flex-direction: column; gap: 10px; }
+.violation-row { background: #fef2f2; border: 1px solid #fecaca; border-right: 3px solid #dc2626; border-radius: 0 8px 8px 0; padding: 12px 14px; }
+.violation-article { font-size: 0.72rem; font-weight: 800; background: #dc2626; color: #fff; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-bottom: 6px; }
+.violation-desc    { font-size: 0.85rem; color: #7f1d1d; line-height: 1.55; }
+.violation-penalty { font-size: 0.78rem; color: #dc2626; margin-top: 4px; font-weight: 600; }
+
+/* ── الخيارات (عام) ── */
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+.option-row { background: var(--white); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; position: relative; }
+.option-recommended { border-color: var(--accent); background: #fffbf5; }
+.option-badge { font-size: 0.7rem; font-weight: 800; background: var(--accent); color: #fff; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-bottom: 6px; }
+.option-title { font-size: 0.87rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+.option-pro   { font-size: 0.8rem; color: #16a34a; }
+.option-con   { font-size: 0.8rem; color: #dc2626; }
+
+/* ── التوصيات ── */
+.recs-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.recs-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 0.86rem; color: var(--text); line-height: 1.6; }
+.rec-num { font-size: 0.72rem; font-weight: 800; background: var(--accent); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+/* ── المراجع ── */
+.refs-list { display: flex; flex-direction: column; gap: 10px; }
+.ref-row { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.ref-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ref-law     { font-size: 0.82rem; font-weight: 700; color: var(--primary); }
+.ref-article { font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: var(--primary); padding: 2px 8px; border-radius: 8px; }
+.ref-text    { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+.no-refs     { font-size: 0.82rem; color: var(--muted); margin: 0; }
+
+/* ── زر تصدير PDF ── */
 .btn-export {
     background: var(--primary); color: #fff;
     border: none; border-radius: 8px;
-    padding: 6px 14px; font-size: 0.82rem; font-weight: 700;
+    padding: 7px 16px; font-size: 0.82rem; font-weight: 700;
     cursor: pointer; transition: background .2s, transform .15s;
-    white-space: nowrap;
+    white-space: nowrap; font-family: inherit;
 }
-.btn-export:hover   { background: #1a3a6b; transform: translateY(-1px); }
+.btn-export:hover    { background: #1a3a6b; transform: translateY(-1px); }
 .btn-export:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── Raw JSON ── */
+.raw-toggle { text-align: center; margin-top: 12px; }
+.btn-raw { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; font-family: inherit; transition: all .2s; }
+.btn-raw:hover { border-color: var(--primary); color: var(--primary); }
+.raw-json { background: #1e1e1e; color: #d4d4d4; border-radius: 10px; padding: 16px; overflow-x: auto; font-size: 0.73rem; text-align: left; direction: ltr; margin-top: 12px; max-height: 400px; }
 
 .hidden { display: none !important; }
 
-@media (max-width: 900px) {
-    .app-grid { grid-template-columns: 1fr; }
-}
+@media (max-width: 960px)  { .app-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px)  { .analysis-panel, .result-panel { padding: 20px 16px; } }

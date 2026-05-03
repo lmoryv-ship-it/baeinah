@@ -16,13 +16,15 @@ CREATE TABLE IF NOT EXISTS users (
                             CHECK(role IN ('individual','startup','medical','enterprise','admin')),
     plan                TEXT NOT NULL DEFAULT 'free'
                             CHECK(plan IN ('free','basic','pro')),
+    -- تجربة مجانية 3 أيام
+    trial_ends_at       TEXT NOT NULL DEFAULT (datetime('now','+3 days')),
     -- حصة شهرية
     quota_used          INTEGER NOT NULL DEFAULT 0,
-    quota_limit         INTEGER NOT NULL DEFAULT 3,
+    quota_limit         INTEGER NOT NULL DEFAULT 5,
     quota_reset_at      TEXT NOT NULL DEFAULT (date('now','start of month','+1 month')),
     -- اشتراك نشط
     subscription_id     TEXT,
-    subscription_status TEXT NOT NULL DEFAULT 'none'
+    subscription_status TEXT NOT NULL DEFAULT 'trialing'
                             CHECK(subscription_status IN ('none','active','past_due','cancelled','trialing')),
     subscription_ends_at TEXT,
     created_at          TEXT NOT NULL DEFAULT (datetime('now')),

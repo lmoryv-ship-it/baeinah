@@ -5,26 +5,28 @@ async function loadPricing() {
         const data  = await res.json();
         const plans = data.plans;
 
-        const grid  = document.getElementById('pricingGrid');
-        const order = ['free', 'basic', 'pro'];
+        const grid     = document.getElementById('pricingGrid');
+        const order    = ['free', 'basic', 'pro'];
         const featured = 'basic';
 
         grid.innerHTML = order.map(key => {
-            const p = plans[key];
+            const p          = plans[key];
             const isFeatured = key === featured;
-            const price = p.amount === 0 ? '0' : (p.amount / 100).toLocaleString('ar-SA');
-            const cta   = key === 'free'
-                ? `<a href="/auth.html" class="btn btn-outline plan-cta">ابدأ مجاناً</a>`
-                : key === 'pro'
-                ? `<a href="/auth.html" class="btn btn-accent plan-cta" data-plan="${key}">اشترك الآن</a>`
-                : `<a href="/auth.html" class="btn btn-accent plan-cta" data-plan="${key}">اشترك الآن</a>`;
+            const price      = p.amount === 0 ? 'مجاني' : (p.amount / 100).toLocaleString('ar-SA');
+            const priceUnit  = p.amount === 0 ? '' : '<span>ريال</span>';
+            const period     = key === 'free'
+                ? '<span class="trial-badge">3 أيام تجريبية</span>'
+                : 'شهرياً · يُجدَّد تلقائياً';
+            const cta = key === 'free'
+                ? `<a href="/auth.html#register" class="btn btn-outline plan-cta">ابدأ التجربة المجانية</a>`
+                : `<a href="/auth.html#register" class="btn btn-accent plan-cta" data-plan="${key}">اشترك الآن</a>`;
 
             return `
             <div class="plan-card ${isFeatured ? 'featured' : ''}">
                 ${isFeatured ? '<div class="plan-badge">الأكثر طلباً</div>' : ''}
                 <div class="plan-name">${p.label}</div>
-                <div class="plan-price">${price} <span>ريال</span></div>
-                <div class="plan-period">${key === 'free' ? 'مجاناً دائماً' : 'شهرياً · يُجدَّد تلقائياً'}</div>
+                <div class="plan-price">${price} ${priceUnit}</div>
+                <div class="plan-period">${period}</div>
                 <ul class="plan-features">
                     ${p.features.map(f => `<li>${f}</li>`).join('')}
                 </ul>
