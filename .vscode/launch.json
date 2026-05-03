@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🚀 تشغيل بَيِّنة",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/server.js",
+            "envFile": "${workspaceFolder}/.env",
+            "restart": true,
+            "runtimeExecutable": "node",
+            "skipFiles": ["<node_internals>/**"],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "baeinah",
+                "order": 1
+            }
+        },
+        {
+            "name": "🐛 تشغيل مع Debugger",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/server.js",
+            "envFile": "${workspaceFolder}/.env",
+            "skipFiles": ["<node_internals>/**"],
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ]
+        },
+        {
+            "name": "🔍 Debug الملف الحالي",
+            "type": "node",
+            "request": "launch",
+            "program": "${file}",
+            "envFile": "${workspaceFolder}/.env",
+            "skipFiles": ["<node_internals>/**"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

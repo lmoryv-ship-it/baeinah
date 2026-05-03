@@ -1,0 +1,59 @@
+{
+    // ── المحرر ────────────────────────────────────────────
+    "editor.fontSize": 14,
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "editor.minimap.enabled": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.suggest.insertMode": "replace",
+
+    // ── ملفات JavaScript ───────────────────────────────────
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // ── ESLint ────────────────────────────────────────────
+    "eslint.enable": true,
+    "eslint.run": "onSave",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+
+    // ── الملفات المُستثناة من المستكشف ────────────────────
+    "files.exclude": {
+        "node_modules": true,
+        "data":         true,
+        "uploads":      true,
+        "backups":      true,
+        "logs":         true,
+        "coverage":     true
+    },
+    "search.exclude": {
+        "node_modules": true,
+        "data":         true
+    },
+
+    // ── Terminal ──────────────────────────────────────────
+    "terminal.integrated.defaultProfile.linux":  "bash",
+    "terminal.integrated.defaultProfile.osx":    "zsh",
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.fontSize": 13,
+
+    // ── Git ───────────────────────────────────────────────
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+
+    // ── تمييز الملفات البيئية ─────────────────────────────
+    "dotenv.enableAutocloaking": true
+}

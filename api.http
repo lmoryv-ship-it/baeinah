@@ -1,0 +1,67 @@
+### بَيِّنة — اختبار الـ API مباشرة من VS Code
+### يتطلب إضافة REST Client
+
+@baseUrl = http://localhost:3000/api
+@token = YOUR_JWT_TOKEN_HERE
+
+### ── Health ──────────────────────────────────────────────
+GET {{baseUrl}}/health
+
+### ── تسجيل حساب جديد ─────────────────────────────────────
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "name": "محمد العمري",
+    "email": "test@baeinah.sa",
+    "password": "Test1234!",
+    "role": "individual"
+}
+
+### ── تسجيل الدخول ────────────────────────────────────────
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@baeinah.sa",
+    "password": "Test1234!"
+}
+
+### ── بيانات المستخدم الحالي ──────────────────────────────
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### ── إنشاء استشارة (نص) ──────────────────────────────────
+POST {{baseUrl}}/consultations
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "type": "contract_analysis",
+    "text": "اتفقت شركة الأمانة للتقنية مع المطور البرمجي محمد على تسليم نظام محاسبي خلال 60 يوماً مقابل 50,000 ريال. يحق للعميل إنهاء العقد في أي وقت دون إشعار. لا توجد بنود لحل النزاعات."
+}
+
+### ── الحصول على استشارة ───────────────────────────────────
+GET {{baseUrl}}/consultations/CONSULTATION_ID_HERE
+Authorization: Bearer {{token}}
+
+### ── تصدير PDF ────────────────────────────────────────────
+GET {{baseUrl}}/consultations/CONSULTATION_ID_HERE/pdf
+Authorization: Bearer {{token}}
+
+### ── خطط الاشتراك ────────────────────────────────────────
+GET {{baseUrl}}/subscriptions/plans
+
+### ── بدء اشتراك ──────────────────────────────────────────
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "plan": "basic"
+}
+
+### ── إحصائيات الادمن ─────────────────────────────────────
+GET {{baseUrl}}/admin/stats
+Authorization: Bearer {{token}}

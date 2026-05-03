@@ -1,0 +1,28 @@
+{
+    "recommendations": [
+        // JavaScript و Node.js
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "christian-kohler.npm-intellisense",
+        "formulahendry.auto-rename-tag",
+
+        // بيئة التطوير
+        "mikestead.dotenv",
+        "PKief.material-icon-theme",
+        "GitHub.copilot",
+        "eamodio.gitlens",
+
+        // REST API
+        "humao.rest-client",
+
+        // قواعد البيانات
+        "qwtel.sqlite-viewer",
+
+        // Docker
+        "ms-azuretools.vscode-docker",
+
+        // HTML و CSS
+        "ecmel.vscode-html-css",
+        "pranaygp.vscode-css-peek"
+    ]
+}
