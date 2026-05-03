@@ -21,7 +21,7 @@ const CREDIT_COSTS = {
     general:           1,
 };
 
-async function createConsultation(userId, type, inputText) {
+async function createConsultation(userId, type, inputText, fileMetadata = null) {
     const db = getDb();
 
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
@@ -33,11 +33,12 @@ async function createConsultation(userId, type, inputText) {
     }
 
     const consultationId = uuidv4();
+    const inputFilePath  = fileMetadata ? fileMetadata.originalName : null;
 
     db.prepare(`
-        INSERT INTO consultations (id, user_id, type, status, input_text, cost_credits)
-        VALUES (?, ?, ?, 'processing', ?, ?)
-    `).run(consultationId, userId, type, inputText, cost);
+        INSERT INTO consultations (id, user_id, type, status, input_text, input_file_path, cost_credits)
+        VALUES (?, ?, ?, 'processing', ?, ?, ?)
+    `).run(consultationId, userId, type, inputText, inputFilePath, cost);
 
     try {
         const systemPrompt = PROMPTS[type] || PROMPTS.contract_analysis;

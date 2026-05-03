@@ -7,6 +7,58 @@ const RISK_LABELS = {
     critical: 'مخاطر حرجة',
 };
 
+const FILE_ICONS = { pdf: '📕', docx: '📘', doc: '📘', txt: '📄' };
+
+// ── إدارة واجهة الإدخال ───────────────────────────────────
+
+let selectedFile = null;
+let inputMode    = 'text'; // 'text' | 'file'
+
+function switchInput(mode) {
+    inputMode = mode;
+    document.getElementById('textInput').classList.toggle('hidden', mode !== 'text');
+    document.getElementById('fileInput').classList.toggle('hidden', mode !== 'file');
+    document.getElementById('tabText').classList.toggle('active', mode === 'text');
+    document.getElementById('tabFile').classList.toggle('active', mode === 'file');
+}
+
+// Drag & Drop
+function onDragOver(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.add('drag-over');
+}
+function onDragLeave() {
+    document.getElementById('dropZone').classList.remove('drag-over');
+}
+function onDrop(e) {
+    e.preventDefault();
+    onDragLeave();
+    const file = e.dataTransfer.files[0];
+    if (file) onFileSelected(file);
+}
+function onFileSelected(file) {
+    if (!file) return;
+    selectedFile = file;
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    document.getElementById('fileIcon').textContent = FILE_ICONS[ext] || '📄';
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatBytes(file.size);
+    document.getElementById('dropZone').classList.add('hidden');
+    document.getElementById('filePreview').classList.remove('hidden');
+}
+function clearFile() {
+    selectedFile = null;
+    document.getElementById('filePickerInput').value = '';
+    document.getElementById('dropZone').classList.remove('hidden');
+    document.getElementById('filePreview').classList.add('hidden');
+}
+function formatBytes(bytes) {
+    if (bytes < 1024)       return `${bytes} B`;
+    if (bytes < 1024 ** 2)  return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+}
+
 // ── المصادقة ──────────────────────────────────────────────
 
 function getToken()    { return localStorage.getItem('baeinah_token'); }
@@ -82,22 +134,36 @@ function renderUserBar() {
 
 async function analyzeContract() {
     const type = document.getElementById('consultationType').value;
-    const text = document.getElementById('contractText').value.trim();
-
-    if (!text) {
-        showError('يرجى إدخال نص الوثيقة.');
-        return;
-    }
 
     setLoading(true);
     hideAll();
 
     try {
-        const res = await apiFetch(`${API_BASE}/consultations`, {
-            method: 'POST',
-            body:   JSON.stringify({ type, text }),
-        });
-        if (!res) return;
+        let res;
+
+        if (inputMode === 'file') {
+            if (!selectedFile) { showError('يرجى اختيار ملف أولاً.'); setLoading(false); return; }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('type', type);
+
+            res = await fetch(`${API_BASE}/consultations/upload`, {
+                method:  'POST',
+                headers: { Authorization: `Bearer ${getToken()}` },
+                body:    formData,
+            });
+            if (res.status === 401) { logout(); return; }
+        } else {
+            const text = document.getElementById('contractText').value.trim();
+            if (!text) { showError('يرجى إدخال نص الوثيقة.'); setLoading(false); return; }
+
+            res = await apiFetch(`${API_BASE}/consultations`, {
+                method: 'POST',
+                body:   JSON.stringify({ type, text }),
+            });
+            if (!res) return;
+        }
 
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || 'حدث خطأ أثناء التحليل');

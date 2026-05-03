@@ -49,10 +49,36 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="contractText">نص العقد أو الوثيقة</label>
+                <!-- منطقة رفع الملف -->
+                <div class="input-toggle">
+                    <button class="toggle-btn active" id="tabText" onclick="switchInput('text')">لصق النص</button>
+                    <button class="toggle-btn" id="tabFile" onclick="switchInput('file')">رفع ملف</button>
+                </div>
+
+                <div id="textInput" class="form-group">
                     <textarea id="contractText" rows="10"
                         placeholder="الصق هنا نص العقد أو الوثيقة القانونية للتحليل…"></textarea>
+                </div>
+
+                <div id="fileInput" class="hidden">
+                    <div id="dropZone" class="drop-zone"
+                         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)"
+                         onclick="document.getElementById('filePickerInput').click()">
+                        <div class="drop-icon">📄</div>
+                        <p class="drop-title">اسحب الملف هنا أو انقر للاختيار</p>
+                        <p class="drop-hint">PDF, DOCX, TXT — حتى 10 ميغابايت</p>
+                        <input type="file" id="filePickerInput" class="hidden"
+                               accept=".pdf,.docx,.txt"
+                               onchange="onFileSelected(this.files[0])">
+                    </div>
+                    <div id="filePreview" class="file-preview hidden">
+                        <span id="fileIcon" class="file-type-icon">📄</span>
+                        <div class="file-info">
+                            <span id="fileName" class="file-name"></span>
+                            <span id="fileSize" class="file-size"></span>
+                        </div>
+                        <button class="remove-file-btn" onclick="clearFile()" title="إزالة الملف">✕</button>
+                    </div>
                 </div>
 
                 <button id="analyzeBtn" class="btn btn-primary btn-large" onclick="analyzeContract()">
