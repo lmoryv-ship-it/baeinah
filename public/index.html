@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بَيِّنة — المساعد القانوني اللحظي</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">⚖</span>
+                <h1>بَيِّنة</h1>
+                <span class="logo-tag">المساعد القانوني اللحظي</span>
+            </div>
+            <nav class="nav">
+                <a href="#analysis">تحليل عقد</a>
+                <a href="#plans">الباقات</a>
+                <a href="#about">عن بَيِّنة</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>حلّل عقودك بذكاء قانوني سعودي متخصص</h2>
+            <p>تحليل فوري للعقود وعقود العمل والوثائق الطبية وفق الأنظمة السعودية المعمول بها</p>
+            <a href="#analysis" class="btn btn-primary">ابدأ التحليل مجاناً</a>
+        </div>
+    </section>
+
+    <section id="analysis" class="analysis-section">
+        <div class="container">
+            <h2 class="section-title">تحليل قانوني فوري</h2>
+
+            <div class="analysis-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userId">معرّف المستخدم</label>
+                        <input type="text" id="userId" placeholder="user_demo_001" value="user_demo_001">
+                    </div>
+                    <div class="form-group">
+                        <label for="consultationType">نوع التحليل</label>
+                        <select id="consultationType">
+                            <option value="contract_analysis">تحليل عقد</option>
+                            <option value="labor_law">نظام العمل</option>
+                            <option value="medical_law">الأنظمة الطبية</option>
+                            <option value="company_law">نظام الشركات</option>
+                            <option value="general">استفسار قانوني عام</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contractText">نص العقد أو الوثيقة</label>
+                    <textarea id="contractText" rows="10"
+                        placeholder="الصق هنا نص العقد أو الوثيقة القانونية للتحليل…"></textarea>
+                </div>
+
+                <button id="analyzeBtn" class="btn btn-primary btn-large" onclick="analyzeContract()">
+                    <span id="btnText">تحليل الوثيقة</span>
+                    <span id="btnLoader" class="loader hidden"></span>
+                </button>
+            </div>
+
+            <div id="resultSection" class="result-section hidden">
+                <div class="result-header">
+                    <h3>نتائج التحليل القانوني</h3>
+                    <span id="riskBadge" class="risk-badge"></span>
+                </div>
+
+                <div class="result-grid">
+                    <div class="result-card" id="summaryCard">
+                        <h4>الملخص التنفيذي</h4>
+                        <p id="summaryText"></p>
+                    </div>
+
+                    <div class="result-card" id="risksCard">
+                        <h4>المخاطر المحددة</h4>
+                        <ul id="risksList"></ul>
+                    </div>
+
+                    <div class="result-card" id="recsCard">
+                        <h4>التوصيات</h4>
+                        <ul id="recsList"></ul>
+                    </div>
+
+                    <div class="result-card" id="refsCard">
+                        <h4>المراجع القانونية</h4>
+                        <ul id="refsList"></ul>
+                    </div>
+                </div>
+
+                <div class="raw-json-toggle">
+                    <button class="btn btn-secondary" onclick="toggleRaw()">عرض البيانات الكاملة (JSON)</button>
+                    <pre id="rawJson" class="raw-json hidden"></pre>
+                </div>
+            </div>
+
+            <div id="errorSection" class="error-section hidden">
+                <p id="errorText"></p>
+            </div>
+        </div>
+    </section>
+
+    <section id="plans" class="plans-section">
+        <div class="container">
+            <h2 class="section-title">باقات بَيِّنة</h2>
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <h3>مجاني</h3>
+                    <div class="plan-price">0 ريال</div>
+                    <ul>
+                        <li>3 استشارات عند التسجيل</li>
+                        <li>تحليل العقود الأساسية</li>
+                        <li>نتائج JSON</li>
+                    </ul>
+                    <button class="btn btn-secondary">ابدأ مجاناً</button>
+                </div>
+                <div class="plan-card plan-featured">
+                    <div class="plan-badge">الأكثر طلباً</div>
+                    <h3>احترافي</h3>
+                    <div class="plan-price">299 ريال<span>/شهر</span></div>
+                    <ul>
+                        <li>100 استشارة شهرياً</li>
+                        <li>جميع أنواع التحليل</li>
+                        <li>تقارير PDF</li>
+                        <li>دعم أولوي</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="initiatePayment('professional')">اشترك الآن</button>
+                </div>
+                <div class="plan-card">
+                    <h3>المؤسسات</h3>
+                    <div class="plan-price">999 ريال<span>/شهر</span></div>
+                    <ul>
+                        <li>500 استشارة شهرياً</li>
+                        <li>API للدمج المباشر</li>
+                        <li>لوحة تحكم المؤسسة</li>
+                        <li>مدير حساب مخصص</li>
+                        <li>امتثال CBAHI</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="initiatePayment('enterprise')">تواصل معنا</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>بَيِّنة © 2024 — تحليل قانوني يستند إلى الأنظمة السعودية المعمول بها. لا تُغني عن الاستشارة القانونية المتخصصة.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
