@@ -76,10 +76,7 @@ async function createConsultation({ orgId, userId, analysisType, caseId, title, 
     );
 
     const relevantLaws = await findRelevantLaws(inputText, analysisType);
-    const { result, tokensUsed } = await (async () => {
-      const r = await analyzeLegal(inputText, analysisType, relevantLaws);
-      return { result: r, tokensUsed: 0 };
-    })();
+    const { result, tokensUsed } = await analyzeLegal(inputText, analysisType, relevantLaws);
 
     const riskLevel = result.risk_level || 'medium';
 

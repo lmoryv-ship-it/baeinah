@@ -58,7 +58,10 @@ ${text.substring(0, 10000)}
   const content = message.content[0].text;
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Claude لم يُعد JSON صحيحاً');
-  return JSON.parse(jsonMatch[0]);
+  return {
+    result:     JSON.parse(jsonMatch[0]),
+    tokensUsed: (message.usage?.input_tokens || 0) + (message.usage?.output_tokens || 0),
+  };
 }
 
 module.exports = { analyzeLegal, ANALYSIS_TYPES };
