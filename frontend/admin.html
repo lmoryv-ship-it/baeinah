@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الإدارة — بَيِّنة</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="/admin.html">⚙️ بَيِّنة — الإدارة</a>
+    <ul class="navbar-nav">
+      <li id="admin-name" class="text-muted" style="font-size:.9rem;"></li>
+      <li><button onclick="logout()" class="btn btn-secondary btn-sm">خروج</button></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">الإدارة</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showTab('stats')" class="active" id="tab-stats">📊 الإحصائيات</a></li>
+      <li><a href="#" onclick="showTab('orgs')"  id="tab-orgs">🏢 المنظمات</a></li>
+      <li><a href="#" onclick="showTab('users')" id="tab-users">👥 المستخدمون</a></li>
+      <li><a href="#" onclick="showTab('consultations')" id="tab-consultations">📋 الاستشارات</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main style="padding:2rem;overflow:auto;">
+
+    <!-- Stats -->
+    <div id="panel-stats">
+      <div class="page-header"><h1>إحصائيات المنصة</h1></div>
+      <div class="stats-grid" id="platform-stats">
+        <div class="stat-card"><div class="stat-value" id="s-orgs">—</div><div class="stat-label">منظمة</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-users">—</div><div class="stat-label">مستخدم</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-consultations">—</div><div class="stat-label">استشارة إجمالية</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-this-month">—</div><div class="stat-label">استشارة هذا الشهر</div></div>
+      </div>
+    </div>
+
+    <!-- Organizations -->
+    <div id="panel-orgs" class="hidden">
+      <div class="page-header">
+        <h1>المنظمات</h1>
+        <input type="text" id="org-search" class="form-control" placeholder="بحث..." style="max-width:250px;" oninput="loadOrgs()">
+      </div>
+      <div class="card">
+        <div class="card-body table-wrapper" id="orgs-table">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div id="panel-users" class="hidden">
+      <div class="page-header"><h1>المستخدمون</h1></div>
+      <div class="card">
+        <div class="card-body table-wrapper" id="users-table">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultations -->
+    <div id="panel-consultations" class="hidden">
+      <div class="page-header"><h1>الاستشارات</h1></div>
+      <div class="card">
+        <div class="card-body table-wrapper" id="consultations-table">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Org detail modal -->
+<div id="org-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div class="card" style="max-width:480px;width:100%;">
+    <div class="card-header">
+      <span>تعديل المنظمة</span>
+      <button onclick="document.getElementById('org-modal').classList.add('hidden')" class="btn btn-secondary btn-sm">✕</button>
+    </div>
+    <div class="card-body">
+      <form onsubmit="saveOrg(event)">
+        <input type="hidden" id="edit-org-id">
+        <div class="form-group">
+          <label class="form-label">الخطة</label>
+          <select id="edit-org-plan" class="form-control">
+            <option value="trial">تجريبية</option>
+            <option value="basic">أساسية</option>
+            <option value="pro">احترافية</option>
+            <option value="enterprise">مؤسسية</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">حد الحصة الشهرية</label>
+          <input type="number" id="edit-org-quota" class="form-control" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">الحالة</label>
+          <select id="edit-org-active" class="form-control">
+            <option value="true">نشطة</option>
+            <option value="false">معطّلة</option>
+          </select>
+        </div>
+        <div class="flex gap-2" style="justify-content:flex-end;">
+          <button type="button" onclick="document.getElementById('org-modal').classList.add('hidden')" class="btn btn-secondary">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  if (!requireAuth()) throw new Error();
+  const user = getUser();
+  if (user?.role !== 'platform_admin') { window.location.href = '/dashboard.html'; throw new Error(); }
+  document.getElementById('admin-name').textContent = user.name;
+
+  let activeTab = 'stats';
+
+  function showTab(tab) {
+    ['stats','orgs','users','consultations'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      document.getElementById(`tab-${t}`)?.classList.toggle('active', t === tab);
+    });
+    activeTab = tab;
+    if (tab === 'stats')         loadStats();
+    if (tab === 'orgs')          loadOrgs();
+    if (tab === 'users')         loadUsers();
+    if (tab === 'consultations') loadConsultations();
+  }
+
+  async function loadStats() {
+    try {
+      const res = await api.admin.stats();
+      const s = res.stats;
+      document.getElementById('s-orgs').textContent         = s.organizations.total;
+      document.getElementById('s-users').textContent        = s.users.total;
+      document.getElementById('s-consultations').textContent = s.consultations.total;
+      document.getElementById('s-this-month').textContent   = s.consultations.this_month;
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadOrgs() {
+    try {
+      const search = document.getElementById('org-search')?.value;
+      const res = await api.admin.orgs(search ? { search } : {});
+      const planLabel = { trial:'تجريبية', basic:'أساسية', pro:'احترافية', enterprise:'مؤسسية' };
+      document.getElementById('orgs-table').innerHTML = `
+        <table>
+          <thead><tr><th>المنظمة</th><th>المعرّف</th><th>الخطة</th><th>الحصة</th><th>الأعضاء</th><th>الحالة</th><th></th></tr></thead>
+          <tbody>${res.organizations.map(o => `
+            <tr>
+              <td><strong>${o.name}</strong></td>
+              <td>${o.slug}</td>
+              <td>${planLabel[o.plan] || o.plan}</td>
+              <td>${o.quota_used}/${o.quota_limit}</td>
+              <td>${o.member_count}</td>
+              <td><span class="badge badge-${o.is_active ? 'success':'medium'}">${o.is_active?'نشطة':'معطّلة'}</span></td>
+              <td><button onclick='editOrg(${JSON.stringify(o)})' class="btn btn-secondary btn-sm">تعديل</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch (err) { document.getElementById('orgs-table').innerHTML = `<p class="text-muted">${err.message}</p>`; }
+  }
+
+  function editOrg(org) {
+    document.getElementById('edit-org-id').value    = org.id;
+    document.getElementById('edit-org-plan').value  = org.plan;
+    document.getElementById('edit-org-quota').value = org.quota_limit;
+    document.getElementById('edit-org-active').value = String(org.is_active);
+    document.getElementById('org-modal').classList.remove('hidden');
+  }
+
+  async function saveOrg(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-org-id').value;
+    try {
+      await api.admin.updateOrg(id, {
+        plan:        document.getElementById('edit-org-plan').value,
+        quota_limit: parseInt(document.getElementById('edit-org-quota').value),
+        is_active:   document.getElementById('edit-org-active').value === 'true',
+      });
+      document.getElementById('org-modal').classList.add('hidden');
+      loadOrgs();
+    } catch (err) { alert(err.message); }
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await api.admin.users();
+      const roleLabel = { owner:'مالك', admin:'مدير', lawyer:'محامي', viewer:'مشاهد', platform_admin:'مدير المنصة' };
+      document.getElementById('users-table').innerHTML = `
+        <table>
+          <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>المنظمة</th><th>الحالة</th><th>آخر دخول</th></tr></thead>
+          <tbody>${res.users.map(u => `
+            <tr>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>${roleLabel[u.role] || u.role}</td>
+              <td>${u.org_name}</td>
+              <td><span class="badge badge-${u.is_active?'success':'medium'}">${u.is_active?'نشط':'معطّل'}</span></td>
+              <td>${u.last_login ? new Date(u.last_login).toLocaleDateString('ar-SA') : '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch (err) { document.getElementById('users-table').innerHTML = `<p class="text-muted">${err.message}</p>`; }
+  }
+
+  async function loadConsultations() {
+    try {
+      const res = await api.admin.consultations();
+      const riskLabel = { critical:'حرج', high:'مرتفع', medium:'متوسط', low:'منخفض' };
+      const typeLabel  = { contracts:'العقود', labor:'العمل', companies:'الشركات', healthcare:'الصحي', general:'عام' };
+      document.getElementById('consultations-table').innerHTML = `
+        <table>
+          <thead><tr><th>النوع</th><th>المنظمة</th><th>المحلل</th><th>المخاطر</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+          <tbody>${res.consultations.map(c => `
+            <tr>
+              <td>${typeLabel[c.analysis_type] || c.analysis_type}</td>
+              <td>${c.org_name}</td>
+              <td>${c.created_by_name || '—'}</td>
+              <td>${c.risk_level ? `<span class="badge badge-${c.risk_level}">${riskLabel[c.risk_level]||c.risk_level}</span>` : '—'}</td>
+              <td><span class="badge badge-${c.status==='completed'?'success':'medium'}">${c.status}</span></td>
+              <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch (err) { document.getElementById('consultations-table').innerHTML = `<p class="text-muted">${err.message}</p>`; }
+  }
+
+  // Initial load
+  loadStats();
+</script>
+</body>
+</html>

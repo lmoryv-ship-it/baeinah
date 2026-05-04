@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحليل قانوني — بَيِّنة</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="/dashboard.html">⚖️ بَيِّنة</a>
+    <ul class="navbar-nav">
+      <li><a href="/dashboard.html">← لوحة التحكم</a></li>
+      <li id="user-quota" class="text-muted" style="font-size:.85rem;"></li>
+    </ul>
+  </div>
+</nav>
+
+<div style="max-width:900px;margin:2rem auto;padding:0 1rem;">
+
+  <!-- Analysis form -->
+  <div id="analysis-form-section">
+    <div class="page-header">
+      <div>
+        <h1>تحليل قانوني جديد</h1>
+        <p class="text-muted">أدخل النص أو ارفع ملفاً للتحليل القانوني الفوري</p>
+      </div>
+    </div>
+
+    <div id="alert" class="hidden"></div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <form onsubmit="submitAnalysis(event)" id="analysis-form">
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">نوع التحليل *</label>
+              <select id="analysis-type" class="form-control" required>
+                <option value="">اختر النوع...</option>
+                <option value="contracts">📋 تحليل العقود</option>
+                <option value="labor">👷 قانون العمل</option>
+                <option value="companies">🏢 نظام الشركات</option>
+                <option value="healthcare">🏥 القطاع الصحي</option>
+                <option value="general">⚖️ استشارة عامة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">القضية (اختياري)</label>
+              <select id="case-select" class="form-control">
+                <option value="">بدون قضية</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">عنوان الاستشارة (اختياري)</label>
+            <input type="text" id="consultation-title" class="form-control" placeholder="مراجعة عقد الإيجار التجاري">
+          </div>
+
+          <!-- Input mode toggle -->
+          <div class="flex gap-2 mb-4" style="border-bottom:1px solid var(--border);padding-bottom:1rem;">
+            <button type="button" id="mode-text" class="btn btn-primary btn-sm" onclick="setMode('text')">📝 نص</button>
+            <button type="button" id="mode-file" class="btn btn-secondary btn-sm" onclick="setMode('file')">📎 ملف</button>
+          </div>
+
+          <!-- Text input -->
+          <div id="input-text" class="form-group">
+            <label class="form-label">النص القانوني *</label>
+            <textarea id="legal-text" class="form-control" rows="12"
+              placeholder="الصق نص العقد أو الوثيقة القانونية هنا (50 حرف على الأقل)..."
+              style="font-family:monospace;font-size:.9rem;"></textarea>
+            <div class="form-hint" id="char-count">0 حرف</div>
+          </div>
+
+          <!-- File input -->
+          <div id="input-file" class="hidden">
+            <label class="upload-zone" for="file-input" id="drop-zone">
+              <div class="upload-icon">📁</div>
+              <div><strong>اسحب الملف هنا أو انقر للاختيار</strong></div>
+              <div style="font-size:.8rem;margin-top:.5rem;">PDF، DOCX، TXT — حتى 10MB</div>
+              <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="onFileSelect(this)">
+            </label>
+            <div id="file-name" class="text-muted mt-2 text-center" style="font-size:.9rem;"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block mt-4" id="submit-btn">
+            🔍 بدء التحليل
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading" class="hidden">
+    <div class="card" style="text-align:center;padding:4rem 2rem;">
+      <div class="loading-spinner-lg"></div>
+      <h2 style="font-size:1.2rem;margin-bottom:.5rem;">جاري التحليل...</h2>
+      <p class="text-muted">نحلل الوثيقة بالذكاء الاصطناعي وفق الأنظمة السعودية</p>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section" class="hidden">
+    <div class="page-header">
+      <div>
+        <h1>نتائج التحليل</h1>
+        <p class="text-muted" id="result-type"></p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="resetForm()" class="btn btn-secondary">↩ تحليل جديد</button>
+        <button onclick="downloadPdf()" class="btn btn-primary" id="pdf-btn">📄 تحميل PDF</button>
+      </div>
+    </div>
+
+    <!-- Risk meter -->
+    <div id="risk-meter" class="risk-meter mb-4"></div>
+
+    <!-- Summary -->
+    <div class="card mb-4">
+      <div class="card-header">الملخص التنفيذي</div>
+      <div class="card-body" id="result-summary"></div>
+    </div>
+
+    <!-- Problematic clauses -->
+    <div class="card mb-4" id="clauses-card">
+      <div class="card-header">البنود الإشكالية</div>
+      <div class="card-body" id="result-clauses"></div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card mb-4" id="recs-card">
+      <div class="card-header">التوصيات القانونية</div>
+      <div class="card-body" id="result-recs"></div>
+    </div>
+
+    <!-- Legal references -->
+    <div class="card" id="refs-card">
+      <div class="card-header">المراجع القانونية</div>
+      <div class="card-body" id="result-refs"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  if (!requireAuth()) throw new Error();
+
+  let currentMode = 'text';
+  let currentConsultationId = null;
+
+  // Load user quota + cases
+  (async () => {
+    try {
+      const [meRes, casesRes] = await Promise.all([api.auth.me(), api.cases.list({ limit: 50 })]);
+      const u = meRes.user;
+      document.getElementById('user-quota').textContent = `${u.quota_used}/${u.quota_limit} استشارة`;
+
+      const sel = document.getElementById('case-select');
+      casesRes.cases?.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.title;
+        sel.appendChild(opt);
+      });
+
+      // Pre-select case from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const caseId = urlParams.get('case');
+      if (caseId) sel.value = caseId;
+    } catch {}
+
+    // Check for result view from hash
+    const hash = window.location.hash;
+    if (hash.startsWith('#result/')) {
+      const id = hash.split('/')[1];
+      loadResult(id);
+    }
+  })();
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('input-text').classList.toggle('hidden', mode !== 'text');
+    document.getElementById('input-file').classList.toggle('hidden', mode !== 'file');
+    document.getElementById('mode-text').className = `btn btn-sm ${mode === 'text' ? 'btn-primary' : 'btn-secondary'}`;
+    document.getElementById('mode-file').className = `btn btn-sm ${mode === 'file' ? 'btn-primary' : 'btn-secondary'}`;
+  }
+
+  function onFileSelect(input) {
+    const f = input.files[0];
+    document.getElementById('file-name').textContent = f ? `✓ ${f.name} (${(f.size/1024).toFixed(1)} KB)` : '';
+  }
+
+  // Drag & drop
+  const dropZone = document.getElementById('drop-zone');
+  dropZone?.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById('file-input').files = e.dataTransfer.files;
+      onFileSelect(document.getElementById('file-input'));
+    }
+  });
+
+  // Char counter
+  document.getElementById('legal-text')?.addEventListener('input', (e) => {
+    document.getElementById('char-count').textContent = `${e.target.value.length.toLocaleString('ar')} حرف`;
+  });
+
+  function showAlert(msg, type = 'error') {
+    const el = document.getElementById('alert');
+    el.className = `alert alert-${type}`;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function submitAnalysis(e) {
+    e.preventDefault();
+    const type   = document.getElementById('analysis-type').value;
+    const caseId = document.getElementById('case-select').value;
+    const title  = document.getElementById('consultation-title').value;
+
+    if (!type) { showAlert('يرجى اختيار نوع التحليل'); return; }
+
+    document.getElementById('analysis-form-section').classList.add('hidden');
+    document.getElementById('loading').classList.remove('hidden');
+
+    try {
+      let data;
+      if (currentMode === 'file') {
+        const file = document.getElementById('file-input').files[0];
+        if (!file) { throw new Error('يرجى اختيار ملف'); }
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('analysis_type', type);
+        if (caseId) fd.append('case_id', caseId);
+        if (title)  fd.append('title', title);
+        data = await api.consultations.upload(fd);
+      } else {
+        const text = document.getElementById('legal-text').value;
+        if (text.trim().length < 50) { throw new Error('النص يجب أن يكون 50 حرفاً على الأقل'); }
+        data = await api.consultations.create({ analysis_type: type, text, case_id: caseId || undefined, title });
+      }
+      currentConsultationId = data.consultation.id;
+      renderResult(data.consultation);
+    } catch (err) {
+      document.getElementById('analysis-form-section').classList.remove('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      showAlert(err.message || 'حدث خطأ أثناء التحليل');
+    }
+  }
+
+  async function loadResult(id) {
+    document.getElementById('analysis-form-section').classList.add('hidden');
+    document.getElementById('loading').classList.remove('hidden');
+    try {
+      const data = await api.consultations.get(id);
+      currentConsultationId = id;
+      renderResult(data.consultation);
+    } catch (err) {
+      showAlert(err.message);
+      resetForm();
+    }
+  }
+
+  function renderResult(consultation) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('results-section').classList.remove('hidden');
+
+    const r = consultation.result || {};
+    const typeLabels = { contracts:'تحليل العقود', labor:'قانون العمل', companies:'نظام الشركات', healthcare:'القطاع الصحي', general:'استشارة عامة' };
+    document.getElementById('result-type').textContent = typeLabels[consultation.analysis_type] || '';
+
+    // Risk meter
+    const riskColors = { critical:'risk-critical', high:'risk-high', medium:'risk-medium', low:'risk-low' };
+    const riskIcons  = { critical:'🔴', high:'🟠', medium:'🟡', low:'🟢' };
+    const riskNames  = { critical:'مخاطر حرجة', high:'مخاطر مرتفعة', medium:'مخاطر متوسطة', low:'مخاطر منخفضة' };
+    const rl = r.risk_level || consultation.risk_level || 'medium';
+    document.getElementById('risk-meter').innerHTML = `
+      <div class="risk-icon">${riskIcons[rl] || '🟡'}</div>
+      <div>
+        <div class="risk-title">${riskNames[rl] || ''}</div>
+        <div class="risk-desc">${r.risk_explanation || ''}</div>
+      </div>
+    `;
+    document.getElementById('risk-meter').className = `risk-meter ${riskColors[rl]} mb-4`;
+
+    // Summary
+    document.getElementById('result-summary').innerHTML = `
+      <p>${r.executive_summary || r.legal_analysis || '—'}</p>
+      ${r.compliance_score ? `<div class="mt-4"><strong>درجة الامتثال:</strong> ${r.compliance_score}%</div>` : ''}
+      ${r.document_type ? `<div><strong>نوع الوثيقة:</strong> ${r.document_type}</div>` : ''}
+    `;
+
+    // Clauses
+    const clauses = r.problematic_clauses || r.compliance_issues || r.governance_issues || [];
+    if (clauses.length) {
+      document.getElementById('result-clauses').innerHTML = clauses.map(c => `
+        <div class="clause-item">
+          <div class="clause-title">${c.clause || c.issue || c.title || ''}</div>
+          ${c.issue ? `<div class="clause-issue">⚠️ ${c.issue}</div>` : ''}
+          ${c.recommendation ? `<div class="clause-rec">✅ ${c.recommendation}</div>` : ''}
+          ${c.severity ? `<span class="badge badge-${c.severity}" style="margin-top:.5rem;">${c.severity}</span>` : ''}
+        </div>`).join('');
+    } else {
+      document.getElementById('clauses-card').classList.add('hidden');
+    }
+
+    // Recommendations
+    const recs = r.legal_recommendations || r.recommendations || [];
+    if (recs.length) {
+      document.getElementById('result-recs').innerHTML = recs.map((rec, i) => `
+        <div class="recommendation-item">
+          ${typeof rec === 'string'
+            ? `<div>${i+1}. ${rec}</div>`
+            : `<div class="clause-title">${i+1}. ${rec.title || ''}</div>
+               ${rec.description ? `<div class="clause-issue">${rec.description}</div>` : ''}
+               ${rec.priority ? `<span class="badge badge-medium">${{ urgent:'عاجل', important:'مهم', advisory:'استشاري' }[rec.priority] || rec.priority}</span>` : ''}`
+          }
+        </div>`).join('');
+    } else {
+      document.getElementById('recs-card').classList.add('hidden');
+    }
+
+    // References
+    const refs = r.legislative_references || r.legal_references || [];
+    if (refs.length) {
+      document.getElementById('result-refs').innerHTML = refs.map(ref =>
+        typeof ref === 'string'
+          ? `<div style="padding:.4rem 0;border-bottom:1px solid var(--border);">• ${ref}</div>`
+          : `<div style="padding:.4rem 0;border-bottom:1px solid var(--border);">• <strong>${ref.law || ''}</strong>${ref.article ? ` — المادة ${ref.article}` : ''}${ref.relevance ? `<br><small class="text-muted">${ref.relevance}</small>` : ''}</div>`
+      ).join('');
+    } else {
+      document.getElementById('refs-card').classList.add('hidden');
+    }
+  }
+
+  function resetForm() {
+    currentConsultationId = null;
+    document.getElementById('results-section').classList.add('hidden');
+    document.getElementById('analysis-form-section').classList.remove('hidden');
+    document.getElementById('loading').classList.add('hidden');
+    ['clauses-card','recs-card','refs-card'].forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+    document.getElementById('alert').classList.add('hidden');
+    window.location.hash = '';
+  }
+
+  function downloadPdf() {
+    if (currentConsultationId) {
+      window.open(api.consultations.pdfUrl(currentConsultationId), '_blank');
+    }
+  }
+</script>
+</body>
+</html>

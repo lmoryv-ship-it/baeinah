@@ -1,23 +1,53 @@
+version: '3.9'
+
 services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: bayyinah_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       bayyinah
+      POSTGRES_USER:     bayyinah
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bayyinah_dev}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bayyinah"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - bayyinah_net
+
   app:
     build:
-      context: .
-      target: runner
-    container_name: baeinah_app
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bayyinah_app
     restart: unless-stopped
-    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      DB_PATH: /app/data/baeinah.db
-      UPLOAD_DIR: /app/uploads
+      NODE_ENV:            production
+      PORT:                3000
+      DATABASE_URL:        postgresql://bayyinah:${DB_PASSWORD:-bayyinah_dev}@postgres:5432/bayyinah
+      DB_SSL:              "false"
+      JWT_SECRET:          ${JWT_SECRET}
+      JWT_REFRESH_SECRET:  ${JWT_REFRESH_SECRET}
+      ANTHROPIC_API_KEY:   ${ANTHROPIC_API_KEY}
+      MOYASAR_API_KEY:     ${MOYASAR_API_KEY:-}
+      MOYASAR_SECRET_KEY:  ${MOYASAR_SECRET_KEY:-}
+      APP_URL:             ${APP_URL:-http://localhost:3000}
+      CORS_ORIGINS:        ${CORS_ORIGINS:-http://localhost:3000}
     volumes:
-      - baeinah_data:/app/data
-      - baeinah_uploads:/app/uploads
+      - uploads:/app/uploads
     ports:
-      - "127.0.0.1:3000:3000"   # متاح لـ Nginx فقط — لا يُكشف للخارج
+      - "127.0.0.1:3000:3000"
     networks:
-      - baeinah_net
+      - bayyinah_net
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
       interval: 30s
@@ -25,21 +55,10 @@ services:
       retries: 3
       start_period: 15s
 
-  # Watchtower — تحديث تلقائي عند رفع صورة جديدة
-  watchtower:
-    image: containrrr/watchtower
-    container_name: baeinah_watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 300 --cleanup baeinah_app
-    networks:
-      - baeinah_net
-
 volumes:
-  baeinah_data:
-  baeinah_uploads:
+  pg_data:
+  uploads:
 
 networks:
-  baeinah_net:
+  bayyinah_net:
     driver: bridge

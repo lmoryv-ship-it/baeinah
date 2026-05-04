@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم — بَيِّنة</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a class="navbar-brand" href="/dashboard.html">⚖️ بَيِّنة</a>
+    <ul class="navbar-nav">
+      <li id="user-name" class="text-muted" style="font-size:.9rem;"></li>
+      <li><button onclick="logout()" class="btn btn-secondary btn-sm">خروج</button></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">القائمة الرئيسية</div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard.html" class="active">🏠 الرئيسية</a></li>
+      <li><a href="/app.html">⚖️ تحليل جديد</a></li>
+    </ul>
+    <div class="sidebar-section">القضايا</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showSection('cases')">📁 قضاياي</a></li>
+      <li><a href="#" onclick="openNewCase()">➕ قضية جديدة</a></li>
+    </ul>
+    <div class="sidebar-section">المنظمة</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="showSection('members')">👥 الأعضاء</a></li>
+      <li><a href="#" onclick="showSection('quota')">📊 الاستخدام</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main style="padding:2rem;overflow:auto;">
+
+    <!-- Overview section -->
+    <div id="section-overview">
+      <div class="page-header">
+        <div>
+          <h1 id="welcome-msg">مرحباً</h1>
+          <p class="text-muted">نظرة عامة على نشاط مكتبك القانوني</p>
+        </div>
+        <a href="/app.html" class="btn btn-primary">➕ تحليل جديد</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-consultations">—</div>
+          <div class="stat-label">استشارة هذا الشهر</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-cases">—</div>
+          <div class="stat-label">قضية نشطة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-quota">—</div>
+          <div class="stat-label">استشارات متبقية</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-members">—</div>
+          <div class="stat-label">عضو في المنظمة</div>
+        </div>
+      </div>
+
+      <!-- Quota bar -->
+      <div class="card mb-4">
+        <div class="card-header">الحصة الشهرية</div>
+        <div class="card-body">
+          <div class="quota-bar">
+            <div class="flex justify-between">
+              <span id="quota-text">جاري التحميل...</span>
+              <span id="quota-plan" class="badge badge-medium"></span>
+            </div>
+            <div class="quota-bar-track mt-2">
+              <div class="quota-bar-fill" id="quota-fill" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent consultations -->
+      <div class="card">
+        <div class="card-header">
+          <span>آخر الاستشارات</span>
+          <a href="/app.html" class="btn btn-primary btn-sm">تحليل جديد</a>
+        </div>
+        <div class="card-body" id="consultations-list">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cases section -->
+    <div id="section-cases" class="hidden">
+      <div class="page-header">
+        <div><h1>القضايا</h1></div>
+        <button onclick="openNewCase()" class="btn btn-primary">➕ قضية جديدة</button>
+      </div>
+      <div class="card">
+        <div class="card-body" id="cases-list">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members section -->
+    <div id="section-members" class="hidden">
+      <div class="page-header">
+        <div><h1>أعضاء المنظمة</h1></div>
+        <button onclick="openInviteMember()" class="btn btn-primary" id="invite-btn">➕ دعوة عضو</button>
+      </div>
+      <div class="card">
+        <div class="card-body" id="members-list">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quota section -->
+    <div id="section-quota" class="hidden">
+      <div class="page-header">
+        <div><h1>الاستخدام والاشتراك</h1></div>
+      </div>
+      <div class="card">
+        <div class="card-body" id="quota-detail">
+          <p class="text-muted text-center">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- New Case Modal -->
+<div id="case-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div class="card" style="max-width:520px;width:100%;">
+    <div class="card-header">
+      <span>قضية جديدة</span>
+      <button onclick="document.getElementById('case-modal').classList.add('hidden')" class="btn btn-secondary btn-sm">✕</button>
+    </div>
+    <div class="card-body">
+      <form onsubmit="createCase(event)">
+        <div class="form-group">
+          <label class="form-label">عنوان القضية *</label>
+          <input type="text" id="case-title" class="form-control" required placeholder="نزاع عقد إيجار تجاري">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">رقم القضية</label>
+            <input type="text" id="case-number" class="form-control" placeholder="2024/1234">
+          </div>
+          <div class="form-group">
+            <label class="form-label">اسم الموكل</label>
+            <input type="text" id="case-client" class="form-control" placeholder="شركة الأفق">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الوصف</label>
+          <textarea id="case-desc" class="form-control" rows="3" placeholder="ملخص القضية..."></textarea>
+        </div>
+        <div class="flex gap-2" style="justify-content:flex-end;">
+          <button type="button" onclick="document.getElementById('case-modal').classList.add('hidden')" class="btn btn-secondary">إلغاء</button>
+          <button type="submit" class="btn btn-primary">إنشاء القضية</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  if (!requireAuth()) throw new Error('Not authenticated');
+
+  const user = getUser();
+  document.getElementById('user-name').textContent = user?.name || '';
+  document.getElementById('welcome-msg').textContent = `مرحباً، ${user?.name || ''}`;
+
+  // Show section helpers
+  function showSection(name) {
+    ['overview', 'cases', 'members', 'quota'].forEach(s => {
+      document.getElementById(`section-${s}`).classList.add('hidden');
+    });
+    document.getElementById(`section-${name}`).classList.remove('hidden');
+
+    if (name === 'cases')   loadCases();
+    if (name === 'members') loadMembers();
+    if (name === 'quota')   loadQuotaDetail();
+  }
+
+  // Load dashboard data
+  async function loadDashboard() {
+    try {
+      const [meRes, consultRes, casesRes] = await Promise.all([
+        api.auth.me(),
+        api.consultations.list({ limit: 5 }),
+        api.cases.list({ status: 'open', limit: 5 }),
+      ]);
+
+      const u = meRes.user;
+      saveUser(u);
+
+      // Stats
+      document.getElementById('stat-consultations').textContent = u.quota_used;
+      document.getElementById('stat-cases').textContent = casesRes.total || 0;
+      document.getElementById('stat-quota').textContent = Math.max(0, u.quota_limit - u.quota_used);
+
+      // Members count
+      try {
+        const orgRes = await api.orgs.me();
+        document.getElementById('stat-members').textContent = orgRes.org.member_count || 1;
+      } catch {}
+
+      // Quota bar
+      const pct = Math.min(100, Math.round((u.quota_used / u.quota_limit) * 100));
+      document.getElementById('quota-text').textContent = `${u.quota_used} من ${u.quota_limit} استشارة`;
+      document.getElementById('quota-plan').textContent = { trial: 'تجريبي', basic: 'أساسي', pro: 'احترافي', enterprise: 'مؤسسي' }[u.plan] || u.plan;
+      const fill = document.getElementById('quota-fill');
+      fill.style.width = `${pct}%`;
+      if (pct >= 90) fill.classList.add('danger');
+      else if (pct >= 70) fill.classList.add('warning');
+
+      // Recent consultations
+      const list = document.getElementById('consultations-list');
+      if (!consultRes.consultations?.length) {
+        list.innerHTML = '<p class="text-muted text-center">لا توجد استشارات بعد — <a href="/app.html">ابدأ تحليلك الأول</a></p>';
+      } else {
+        list.innerHTML = `<div class="table-wrapper"><table>
+          <thead><tr><th>النوع</th><th>العنوان</th><th>المخاطر</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+          <tbody>${consultRes.consultations.map(c => `
+            <tr>
+              <td>${typeLabel(c.analysis_type)}</td>
+              <td>${c.title || '—'}</td>
+              <td>${c.risk_level ? `<span class="badge badge-${c.risk_level}">${riskLabel(c.risk_level)}</span>` : '—'}</td>
+              <td><span class="badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+              <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+              <td><a href="/app.html#result/${c.id}" class="btn btn-secondary btn-sm">عرض</a></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>`;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadCases() {
+    try {
+      const res = await api.cases.list();
+      const list = document.getElementById('cases-list');
+      if (!res.cases?.length) {
+        list.innerHTML = '<p class="text-muted text-center">لا توجد قضايا — <button onclick="openNewCase()" class="btn btn-primary btn-sm">أنشئ قضية</button></p>';
+        return;
+      }
+      list.innerHTML = `<div class="table-wrapper"><table>
+        <thead><tr><th>العنوان</th><th>الموكل</th><th>الحالة</th><th>الاستشارات</th><th>التاريخ</th><th></th></tr></thead>
+        <tbody>${res.cases.map(c => `
+          <tr>
+            <td><strong>${c.title}</strong>${c.case_number ? `<br><small class="text-muted">${c.case_number}</small>` : ''}</td>
+            <td>${c.client_name || '—'}</td>
+            <td><span class="badge badge-${c.status === 'open' ? 'success' : 'medium'}">${caseStatusLabel(c.status)}</span></td>
+            <td>${c.consultation_count || 0}</td>
+            <td>${new Date(c.created_at).toLocaleDateString('ar-SA')}</td>
+            <td><a href="/app.html?case=${c.id}" class="btn btn-primary btn-sm">تحليل</a></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadMembers() {
+    try {
+      const res = await api.orgs.members();
+      const list = document.getElementById('members-list');
+      const user = getUser();
+      const canManage = ['owner', 'admin'].includes(user?.role);
+      document.getElementById('invite-btn').classList.toggle('hidden', !canManage);
+
+      list.innerHTML = `<div class="table-wrapper"><table>
+        <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>آخر دخول</th></tr></thead>
+        <tbody>${res.members.map(m => `
+          <tr>
+            <td>${m.name}</td>
+            <td>${m.email}</td>
+            <td>${roleLabel(m.role)}</td>
+            <td><span class="badge badge-${m.is_active ? 'success' : 'medium'}">${m.is_active ? 'نشط' : 'معطّل'}</span></td>
+            <td>${m.last_login ? new Date(m.last_login).toLocaleDateString('ar-SA') : '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+    } catch (err) { console.error(err); }
+  }
+
+  async function loadQuotaDetail() {
+    try {
+      const res = await api.auth.me();
+      const u = res.user;
+      document.getElementById('quota-detail').innerHTML = `
+        <div class="stats-grid" style="margin-bottom:1.5rem;">
+          <div class="stat-card"><div class="stat-value">${u.quota_used}</div><div class="stat-label">استشارة مستخدمة</div></div>
+          <div class="stat-card"><div class="stat-value">${u.quota_limit}</div><div class="stat-label">الحد الشهري</div></div>
+          <div class="stat-card"><div class="stat-value">${Math.max(0, u.quota_limit - u.quota_used)}</div><div class="stat-label">متبقي</div></div>
+        </div>
+        <div class="alert alert-info">خطتك الحالية: <strong>${{ trial:'تجريبي', basic:'أساسي', pro:'احترافي', enterprise:'مؤسسي' }[u.plan] || u.plan}</strong>${u.quota_reset_date ? ` — تجديد في ${new Date(u.quota_reset_date).toLocaleDateString('ar-SA')}` : ''}</div>
+        <p class="text-muted" style="font-size:.85rem;">للترقية أو إلغاء الاشتراك يرجى التواصل مع الدعم.</p>
+      `;
+    } catch (err) { console.error(err); }
+  }
+
+  function openNewCase() {
+    document.getElementById('case-modal').classList.remove('hidden');
+  }
+  function openInviteMember() {
+    alert('ميزة دعوة الأعضاء ستتوفر قريباً');
+  }
+
+  async function createCase(e) {
+    e.preventDefault();
+    try {
+      await api.cases.create({
+        title:       document.getElementById('case-title').value,
+        case_number: document.getElementById('case-number').value,
+        client_name: document.getElementById('case-client').value,
+        description: document.getElementById('case-desc').value,
+      });
+      document.getElementById('case-modal').classList.add('hidden');
+      showSection('cases');
+    } catch (err) { alert(err.message); }
+  }
+
+  // Label helpers
+  function typeLabel(t) { return { contracts:'العقود', labor:'العمل', companies:'الشركات', healthcare:'الصحي', general:'عام' }[t] || t; }
+  function riskLabel(r) { return { critical:'حرج', high:'مرتفع', medium:'متوسط', low:'منخفض' }[r] || r; }
+  function statusLabel(s) { return { completed:'مكتمل', pending:'قيد الانتظار', processing:'جاري', failed:'فشل' }[s] || s; }
+  function caseStatusLabel(s) { return { open:'مفتوح', in_progress:'قيد التنفيذ', closed:'مغلق', archived:'مؤرشف' }[s] || s; }
+  function roleLabel(r) { return { owner:'مالك', admin:'مدير', lawyer:'محامي', viewer:'مشاهد', platform_admin:'مدير المنصة' }[r] || r; }
+
+  loadDashboard();
+</script>
+</body>
+</html>
