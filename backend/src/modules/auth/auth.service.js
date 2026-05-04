@@ -7,7 +7,6 @@ const { ValidationError, UnauthorizedError, NotFoundError } = require('../../sha
 
 const ACCESS_EXPIRES  = process.env.JWT_EXPIRES_IN         || '7d';
 const REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
-const REFRESH_MS      = 30 * 24 * 60 * 60 * 1000;
 
 function signAccess(userId, role, orgId) {
   return jwt.sign(
