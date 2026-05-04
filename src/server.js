@@ -20,12 +20,15 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-const apiLimiter = rateLimit({
+// Rate limiting — مُعطَّل في بيئة الاختبار
+const isTest = process.env.NODE_ENV === 'test';
+
+const apiLimiter = isTest ? (_req, _res, next) => next() : rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 50,
     message: { error: 'تجاوزت الحد المسموح به من الطلبات. يرجى الانتظار 15 دقيقة.' },
 });
-const authLimiter = rateLimit({
+const authLimiter = isTest ? (_req, _res, next) => next() : rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
     message: { error: 'محاولات كثيرة جداً. يرجى الانتظار 15 دقيقة.' },
@@ -44,8 +47,11 @@ app.use((err, _req, res, _next) => {
     res.status(err.status || 500).json({ error: err.message || 'حدث خطأ داخلي في الخادم' });
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ بَيِّنة تعمل على المنفذ ${PORT}`);
-});
+// لا نبدأ الاستماع عند تشغيل الاختبارات (NODE_ENV=test) حتى تتحكم بالمنفذ بنفسها
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`✅ بَيِّنة تعمل على المنفذ ${PORT}`);
+    });
+}
 
 module.exports = app;
